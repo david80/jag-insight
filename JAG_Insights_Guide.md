@@ -1,4 +1,86 @@
-# 🤖 JAG Insights (Antigravity IDE · VS Code AI 사용량 모니터) 설치 & 사용 가이드
+# 🤖 JAG Insights — Installation & Usage Guide
+**Antigravity IDE · VS Code AI Usage Monitor**
+
+> 🇺🇸 [English](#english) | 🇰🇷 [한국어](#한국어)
+
+---
+
+<a name="english"></a>
+# 🇺🇸 English
+
+**JAG Insights** supports both **Antigravity IDE and Microsoft Visual Studio Code**. It is an extension that visualizes AI usage limits and remaining quota in real time directly in the status bar.
+
+Claude Code, Codex, and Gemini CLI information are available in both IDEs. Antigravity-exclusive model quotas are provided when the Antigravity Language Server is running.
+
+Installation is simple — just use the single `.vsix` file provided.
+
+---
+
+## 💾 1. Installation (VSIX)
+
+Choose whichever method is more convenient.
+
+### Method A: Install via GUI (Recommended)
+1. Launch **Antigravity IDE or Visual Studio Code**.
+2. Open the **Extensions tab** in the left sidebar (`Cmd+Shift+X` or `Ctrl+Shift+X`).
+3. Click the **`...` (More Actions) button** at the top-right of the Extensions search bar.
+4. Select **`Install from VSIX...`** from the dropdown.
+5. Choose the provided **`jag-insight-1.2.6.vsix`** file and complete the installation.
+6. Once installed, the monitor will load immediately in the bottom-right status bar — no IDE restart required.
+
+### Method B: Install via Terminal
+Open a terminal, navigate to the directory containing the VSIX file, and run:
+```bash
+# Use the launcher command matching your IDE (e.g., code, cursor, etc.)
+code --install-extension jag-insight-1.2.6.vsix
+```
+
+---
+
+## 🌟 2. Features & Usage
+
+### 1. Real-Time Monitoring (Status Bar)
+After successful installation, the `🤖 JAG Insights` item will reside permanently in the bottom-right status bar of Antigravity IDE or VS Code.
+
+### 2. Detailed Usage View (Hover)
+Hover over the `🤖 JAG Insights` status bar item to reveal a rich Markdown popup:
+* **User account info** and **total prompt credit usage**
+* **Per-service AI model usage gauge bars** with reset time info (grouped by Cloud Code/Google Gemini, OpenAI Codex, and Anthropic Claude)
+* When remaining quota drops to 40% or below, a red warning indicator activates automatically.
+* Click the `[ REFRESH ]` and `[ CONFIG ]` links at the bottom of the tooltip for instant manual refresh or settings navigation.
+
+### 3. Quick Action Menu (Left Click)
+Click the status bar item to open the **QuickPick popup menu** at the top of the screen:
+* Lists the reset countdown for each AI model, organized by service group (Cloud Code, Codex, Claude).
+* Press **`Refresh Quota`** at the bottom of the menu to manually refresh usage data, or **`Settings`** to jump directly to extension settings.
+
+---
+
+## ⚙️ 3. Configuration
+
+Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to customize options:
+
+* **`jagInsights.enabled`**: Show/hide the status bar monitor (default: `true`)
+* **`jagInsights.pollIntervalMs`**: Background refresh interval in milliseconds (default: `30000` = 30 s)
+* **`jagInsights.showUserEmail`**: Show email address in the tooltip (default: `true`)
+* **`jagInsights.showPromptCredits`**: Show total credit balance in the tooltip (default: `true`)
+* **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages (AG, CX, CL) in the status bar text (default: `true`)
+* **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}`)
+  * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcl}`/`{cl}`: Antigravity Claude
+  * `{cx}`: Local Codex (percentage)
+  * `{cc}`: Claude Code quota percentage. If no quota limit exists or data has not yet been collected, shows the cumulative 7-day token usage instead (e.g., `1.5M(7d)`)
+* **`jagInsights.codexSessionPath`**: Codex session JSONL directory. Leave blank to auto-detect `$CODEX_HOME/sessions` or `~/.codex/sessions`
+* **`jagInsights.codexStatePath`**: Local Codex legacy monitor state file path (optional). Used as a fallback when session data is unavailable.
+* **`jagInsights.claudeCodeUsagePath`**: Claude Code status-line capture file (default: `~/.claude/jag-insights-usage.json`)
+* **`jagInsights.claudeCodeStatePath`**: Claude Code legacy monitor state file path (optional).
+
+To enable Claude Code usage tracking, run **`JAG Insights: Install Claude Code Usage Capture`** from the Command Palette, then send one message in Claude Code.
+
+---
+---
+
+<a name="한국어"></a>
+# 🇰🇷 한국어
 
 **JAG Insights**는 **Antigravity IDE와 Microsoft Visual Studio Code를 모두 지원**하며, 상태 표시줄에 AI 사용량 한도 및 잔량 정보를 실시간 시각화하는 확장 프로그램(Extension)입니다.
 
