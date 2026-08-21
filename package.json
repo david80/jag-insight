@@ -4,6 +4,7 @@
   "description": "AI quota and usage monitor for Antigravity IDE and Visual Studio Code",
   "version": "1.2.7",
   "publisher": "davidlee",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.80.0"
   },

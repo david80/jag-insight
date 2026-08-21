@@ -129,3 +129,9 @@ The Codex usage reader is based on the approach used by the MIT-licensed [Codex 
 
 #### Q2. I want to change the update interval of the status bar.
 - **Solution**: Modify the `jagInsights.pollIntervalMs` value in the IDE Settings (`Cmd+,`). The extension will detect the change in real-time and adjust the polling interval instantly.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
