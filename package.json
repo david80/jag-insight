@@ -1,0 +1,103 @@
+{
+  "name": "jag-insight",
+  "displayName": "JAG Insights",
+  "description": "AI quota and usage monitor for Antigravity IDE and Visual Studio Code",
+  "version": "1.2.7",
+  "publisher": "davidlee",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "echo 'No compilation needed'",
+    "watch": "echo 'No watch needed'",
+    "test": "node --test test/*.test.js",
+    "package": "node scripts/build.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "jagInsights.refresh",
+        "title": "JAG Insights: Refresh Quota"
+      },
+      {
+        "command": "jagInsights.showDetails",
+        "title": "JAG Insights: Show Quota Details"
+      },
+      {
+        "command": "jagInsights.installClaudeCapture",
+        "title": "JAG Insights: Install Claude Code Usage Capture"
+      }
+    ],
+    "configuration": {
+      "title": "JAG Insights",
+      "properties": {
+        "jagInsights.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable JAG Insights status bar item."
+        },
+        "jagInsights.pollIntervalMs": {
+          "type": "integer",
+          "default": 30000,
+          "description": "Polling interval in milliseconds to check local quota."
+        },
+        "jagInsights.showUserEmail": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display user email in the status bar tooltip and details panel."
+        },
+        "jagInsights.showPromptCredits": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display total prompt credits in status bar tooltip and details panel."
+        },
+        "jagInsights.showQuotaOnStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show integrated quota percentages (AG, CX, CL) directly on the status bar text."
+        },
+        "jagInsights.statusBarFormat": {
+          "type": "string",
+          "default": "$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}",
+          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcl}/{cl} (Antigravity Claude), {cx} (Codex), {cc} (Claude Code)."
+        },
+        "jagInsights.claudeCodeUsagePath": {
+          "type": "string",
+          "default": "~/.claude/jag-insights-usage.json",
+          "description": "Path to the Claude Code rate-limit cache written by the JAG Insights statusLine capture."
+        },
+        "jagInsights.claudeCodeStatePath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional legacy Claude Code monitor state file."
+        },
+        "jagInsights.codexSessionPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional Codex sessions directory. Empty automatically uses $CODEX_HOME/sessions or ~/.codex/sessions."
+        },
+        "jagInsights.codexStatePath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional legacy Codex monitor state file path (선택 사항). 세션 데이터를 가져올 수 없을 때의 백업용 파일입니다."
+        },
+        "jagInsights.geminiSessionPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional Gemini CLI sessions directory. Empty automatically uses ~/.gemini/sessions. Gemini CLI 세션 JSONL 디렉터리 경로입니다."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0"
+  }
+}

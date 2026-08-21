@@ -1,0 +1,45 @@
+[2026-08-20T08:24:30.257Z] [INFO] [Daemon] Background monitoring loop started.
+[2026-08-20T08:24:30.259Z] [INFO] [ProcessFinder] Starting process detection... {"workspacePath":"/Users/davidlee/project/antigravity-insight"}
+[2026-08-20T08:24:30.316Z] [DEBUG] [ProcessFinder] Process list output length: 1696
+[2026-08-20T08:24:30.316Z] [DEBUG] [ProcessFinder] Searching for workspace match {"sanitizedPath":"_Users_davidlee_project_antigravity-insight","folderName":"antigravity-insight"}
+[2026-08-20T08:24:30.316Z] [INFO] [ProcessFinder] No specific workspace process found, using first available process
+[2026-08-20T08:24:30.316Z] [DEBUG] [ProcessFinder] Target process line: davidlee          1398   8.8  2.3 413472592 391712   ??  S    Fri05PM  13:06.09 /Applications/Antigravity IDE.app/Contents/Resources/app/extensions/antigravity/bin/language_server_macos_arm --csrf_token 94f0a702-d957-4081-ba03-03566386893b --extension_server_port 49183 --extension_server_csrf_token 052c766a-3788-46be-bc67-cc7cc1cd92cd --app_data_dir antigravity-ide --subclient_type ide --cloud_code_endpoint https://cloudcode-pa.googleapis.com
+[2026-08-20T08:24:30.317Z] [INFO] [ProcessFinder] Found PID: 1398, Extension Port: 49183
+[2026-08-20T08:24:30.345Z] [INFO] [ProcessFinder] Discovered listening ports for PID 1398: 49209, 49210
+[2026-08-20T08:24:30.345Z] [DEBUG] [ProcessFinder] Candidate ports to test: 49209, 49210, 49183, 49184, 49182, 49185, 49186
+[2026-08-20T08:24:30.345Z] [DEBUG] [ProcessFinder] Testing port 49209...
+[2026-08-20T08:24:30.359Z] [INFO] [ProcessFinder] Found working connect port: 49209
+[2026-08-20T08:24:30.359Z] [INFO] [ProcessFinder] Successfully detected process info {"extensionPort":49183,"connectPort":49209,"csrfTokenLength":36}
+[2026-08-20T08:24:30.360Z] [INFO] [QuotaClient] Fetching quota from local server on port 49209...
+[2026-08-20T08:24:30.376Z] [INFO] [QuotaClient] Quota response successfully fetched and parsed {"email":"davidlee800106@gmail.com","hasPromptCredits":true,"modelsCount":14}
+[2026-08-20T08:24:30.377Z] [DEBUG] [Daemon] Quota updated.
+[2026-08-20T08:24:59.262Z] [INFO] [Daemon] Running manual one-time quota check...
+[2026-08-20T08:24:59.266Z] [INFO] [ProcessFinder] Starting process detection... {"workspacePath":"/Users/davidlee/project/antigravity-insight"}
+[2026-08-20T08:24:59.323Z] [DEBUG] [ProcessFinder] Process list output length: 1694
+[2026-08-20T08:24:59.323Z] [DEBUG] [ProcessFinder] Searching for workspace match {"sanitizedPath":"_Users_davidlee_project_antigravity-insight","folderName":"antigravity-insight"}
+[2026-08-20T08:24:59.323Z] [INFO] [ProcessFinder] No specific workspace process found, using first available process
+[2026-08-20T08:24:59.324Z] [DEBUG] [ProcessFinder] Target process line: davidlee          1398   0.0  2.4 413472592 395728   ??  S    금05PM  13:06.72 /Applications/Antigravity IDE.app/Contents/Resources/app/extensions/antigravity/bin/language_server_macos_arm --csrf_token 94f0a702-d957-4081-ba03-03566386893b --extension_server_port 49183 --extension_server_csrf_token 052c766a-3788-46be-bc67-cc7cc1cd92cd --app_data_dir antigravity-ide --subclient_type ide --cloud_code_endpoint https://cloudcode-pa.googleapis.com
+[2026-08-20T08:24:59.324Z] [INFO] [ProcessFinder] Found PID: 1398, Extension Port: 49183
+[2026-08-20T08:24:59.348Z] [INFO] [ProcessFinder] Discovered listening ports for PID 1398: 49209, 49210
+[2026-08-20T08:24:59.348Z] [DEBUG] [ProcessFinder] Candidate ports to test: 49209, 49210, 49183, 49184, 49182, 49185, 49186
+[2026-08-20T08:24:59.348Z] [DEBUG] [ProcessFinder] Testing port 49209...
+[2026-08-20T08:24:59.365Z] [INFO] [ProcessFinder] Found working connect port: 49209
+[2026-08-20T08:24:59.366Z] [INFO] [ProcessFinder] Successfully detected process info {"extensionPort":49183,"connectPort":49209,"csrfTokenLength":36}
+[2026-08-20T08:24:59.366Z] [INFO] [QuotaClient] Fetching quota from local server on port 49209...
+[2026-08-20T08:24:59.381Z] [INFO] [QuotaClient] Quota response successfully fetched and parsed {"email":"davidlee800106@gmail.com","hasPromptCredits":true,"modelsCount":14}
+[2026-08-20T08:24:59.381Z] [INFO] [Daemon] Quota saved successfully to /Users/davidlee/project/antigravity-insight/last_status.json
+[2026-08-21T04:32:57.277Z] [INFO] [Daemon] Running manual one-time quota check...
+[2026-08-21T04:32:57.279Z] [INFO] [ProcessFinder] Starting process detection... {"workspacePath":"/Users/davidlee/project/antigravity-insight"}
+[2026-08-21T04:32:57.318Z] [DEBUG] [ProcessFinder] Process list output length: 1696
+[2026-08-21T04:32:57.318Z] [DEBUG] [ProcessFinder] Searching for workspace match {"sanitizedPath":"_Users_davidlee_project_antigravity-insight","folderName":"antigravity-insight"}
+[2026-08-21T04:32:57.318Z] [INFO] [ProcessFinder] No specific workspace process found, using first available process
+[2026-08-21T04:32:57.318Z] [DEBUG] [ProcessFinder] Target process line: davidlee          1398   1.7  2.5 413476112 418608   ??  S    Fri05PM  15:52.45 /Applications/Antigravity IDE.app/Contents/Resources/app/extensions/antigravity/bin/language_server_macos_arm --csrf_token 94f0a702-d957-4081-ba03-03566386893b --extension_server_port 49183 --extension_server_csrf_token 052c766a-3788-46be-bc67-cc7cc1cd92cd --app_data_dir antigravity-ide --subclient_type ide --cloud_code_endpoint https://cloudcode-pa.googleapis.com
+[2026-08-21T04:32:57.318Z] [INFO] [ProcessFinder] Found PID: 1398, Extension Port: 49183
+[2026-08-21T04:32:57.336Z] [INFO] [ProcessFinder] Discovered listening ports for PID 1398: 49209, 49210
+[2026-08-21T04:32:57.336Z] [DEBUG] [ProcessFinder] Candidate ports to test: 49209, 49210, 49183, 49184, 49182, 49185, 49186
+[2026-08-21T04:32:57.336Z] [DEBUG] [ProcessFinder] Testing port 49209...
+[2026-08-21T04:32:57.346Z] [INFO] [ProcessFinder] Found working connect port: 49209
+[2026-08-21T04:32:57.346Z] [INFO] [ProcessFinder] Successfully detected process info {"extensionPort":49183,"connectPort":49209,"csrfTokenLength":36}
+[2026-08-21T04:32:57.346Z] [INFO] [QuotaClient] Fetching quota from local server on port 49209...
+[2026-08-21T04:32:57.376Z] [INFO] [QuotaClient] Quota response successfully fetched and parsed {"email":"davidlee800106@gmail.com","hasPromptCredits":true,"modelsCount":14}
+[2026-08-21T04:32:57.394Z] [INFO] [Daemon] Unified snapshot saved to /Users/davidlee/project/antigravity-insight/last_status.json

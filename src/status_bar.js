@@ -1,0 +1,409 @@
+const vscode = require('vscode');
+const {
+  DEFAULT_STATUS_BAR_FORMAT,
+  summarizeQuotas,
+  formatStatusBarSegments,
+  categorizeModels
+} = require('./status_summary');
+const { estimatePeriodCost, formatCost } = require('./cost_estimator');
+
+class StatusBarManager {
+  constructor() {
+    this.items = {
+      antigravity: this.createStatusBarItem(102),
+      codex: this.createStatusBarItem(101),
+      claudeCode: this.createStatusBarItem(100)
+    };
+    this.items.antigravity.text = '$(hubot) JAG Insights';
+    this.items.antigravity.show();
+    this.lastSnapshot = null;
+    this.claudeCodeQuota = null;
+    this.codexQuota = null;
+    this.geminiActivity = null;
+  }
+
+  createStatusBarItem(priority) {
+    const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority);
+    item.command = 'jagInsights.showDetails';
+    item.tooltip = 'Click to view quota details';
+    return item;
+  }
+
+  dispose() {
+    for (const item of Object.values(this.items)) item.dispose();
+  }
+
+  showError(msg) {
+    this.hide();
+    const item = this.items.antigravity;
+    item.text = '$(error) JAG Insights';
+    item.tooltip = `Error: ${msg}`;
+    item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    item.show();
+  }
+
+  /**
+   * @param {object} snapshot      - AG quota snapshot (from last_status.json)
+   * @param {object} config        - extension configuration
+   * @param {object} claudeCodeQuota - Claude Code usage data
+   * @param {object} codexQuota    - Codex usage data
+   * @param {object} geminiActivity - Gemini CLI activity data (new)
+   */
+  update(snapshot, config, claudeCodeQuota, codexQuota, geminiActivity) {
+    if (!config.enabled) {
+      this.hide();
+      return;
+    }
+
+    this.lastSnapshot = snapshot;
+    this.claudeCodeQuota = claudeCodeQuota;
+    this.codexQuota = codexQuota;
+    this.geminiActivity = geminiActivity;
+
+    const models = (snapshot && snapshot.models) || [];
+    const summary = summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity);
+    const tooltip = this.buildTooltip(snapshot, config);
+
+    if (!config.showQuotaOnStatusBar) {
+      this.hide();
+      const item = this.items.antigravity;
+      item.text = '$(hubot) JAG Insights';
+      item.tooltip = tooltip;
+      item.backgroundColor = undefined;
+      item.show();
+      return;
+    }
+
+    const text = formatStatusBarSegments(config.statusBarFormat || DEFAULT_STATUS_BAR_FORMAT, summary);
+    const agMinimums = [summary.antigravity, summary.antigravityCodex, summary.antigravityClaude]
+      .filter(value => value !== null);
+    const percentages = {
+      antigravity: agMinimums.length > 0 ? Math.min(...agMinimums) : null,
+      codex: summary.codex,
+      claudeCode: summary.claudeCode
+    };
+
+    for (const [provider, item] of Object.entries(this.items)) {
+      item.text = text[provider];
+      item.tooltip = tooltip;
+      item.backgroundColor = this.getStatusBackground(percentages[provider]);
+      if (item.text) item.show();
+      else item.hide();
+    }
+  }
+
+  hide() {
+    for (const item of Object.values(this.items)) item.hide();
+  }
+
+  getStatusBackground(remainingPercentage) {
+    if (remainingPercentage === null || !Number.isFinite(remainingPercentage)) return undefined;
+    if (remainingPercentage <= 0.1) {
+      return new vscode.ThemeColor('statusBarItem.errorBackground');
+    }
+    if (remainingPercentage <= 40) {
+      return new vscode.ThemeColor('statusBarItem.warningBackground');
+    }
+    return undefined;
+  }
+
+  buildTooltip(snapshot, config) {
+    const md = new vscode.MarkdownString();
+    md.isTrusted = true;
+    md.supportHtml = true;
+    md.supportThemeIcons = true;
+
+    md.appendMarkdown('\n### $(hubot) JAG User Insights\n');
+
+    if (config.showUserEmail && snapshot.email) {
+      md.appendMarkdown(`\n$(person) **User**: \`${snapshot.email}\`\n`);
+    }
+
+    if (config.showPromptCredits && snapshot.promptCredits) {
+      const { available, monthly, remainingPercentage } = snapshot.promptCredits;
+      const pct = remainingPercentage.toFixed(0);
+      md.appendMarkdown(`\n$(pulse) **Prompt Credits**: ${available} / ${monthly} (${pct}%)`);
+    }
+
+    md.appendMarkdown('\n\n');
+
+    md.appendCodeblock(this.buildQuotaTable(snapshot.models, this.claudeCodeQuota, this.codexQuota, this.geminiActivity), 'diff');
+    md.appendMarkdown('\n\n');
+
+    // Footer
+    md.appendMarkdown('\n| | |\n|:---|---:|\n');
+    const localTimeStr = new Date(snapshot.timestamp).toLocaleTimeString('ko-KR');
+    md.appendMarkdown(`| [ $(refresh) REFRESH ](command:jagInsights.refresh) \u00A0 [ $(gear) CONFIG ](command:workbench.action.openSettings?%22jagInsights%22) | $(clock) ${localTimeStr} |`);
+    md.appendMarkdown('\n');
+
+    return md;
+  }
+
+  /**
+   * Confidence label: indicates data reliability.
+   *   official  = captured directly from Claude Code's rate_limit statusline
+   *   estimated = computed from local JSONL transcripts
+   */
+  getConfidenceLabel(source) {
+    if (!source) return '';
+    if (source === 'claude-statusline' || source === 'claude-usage-cache') return ' [official]';
+    if (source === 'claude-local-cache') return ' [local cache]';
+    if (source === 'claude-transcripts') return ' [estimated]';
+    if (source === 'codex-sessions') return ' [sessions]';
+    if (source === 'gemini-sessions') return ' [sessions]';
+    return '';
+  }
+
+  buildQuotaTable(models, claudeCodeQuota, codexQuota, geminiActivity) {
+    let output = '';
+
+    const formatGroup = (groupName, groupModels) => {
+      if (!groupModels || groupModels.length === 0) return '';
+      let str = ` -- [ ${groupName} ] -----------------\n`;
+      for (const m of groupModels) {
+        const pctValue = m.remainingPercentage !== undefined ? m.remainingPercentage : 0;
+        const indicator = pctValue > 40 ? '+' : '-';
+        const bar = this.getProgressBar(pctValue);
+        const displayValue = `${pctValue.toFixed(0)}%`;
+        const paddedLabel = m.label.padEnd(25).substring(0, 25);
+        str += `${indicator} ${paddedLabel} | ${bar} | ${displayValue.padEnd(4)} | ${m.timeUntilResetFormatted}\n`;
+      }
+      return str;
+    };
+
+    const formatExternalGroup = (groupName, quota) => {
+      if (!quota || !quota.models || quota.models.length === 0) return '';
+      const confidenceLabel = this.getConfidenceLabel(quota.source);
+      let str = ` -- [ ${groupName}${confidenceLabel} ] -----------------\n`;
+      for (const m of quota.models) {
+        const ccPct = m.remainingPercentage;
+        const ccBar = this.getProgressBar(ccPct);
+        const indicator = ccPct > 40 ? '+' : '-';
+        const displayValue = `${ccPct.toFixed(0)}%`;
+        const resetsAt = m.resetsAt;
+        let resetFormatted = m.isOutdated ? 'Outdated' : 'Ready';
+        if (resetsAt) {
+          const resetDate = new Date(resetsAt);
+          const now = new Date();
+          const diff = resetDate.getTime() - now.getTime();
+          if (diff > 0) {
+            const mins = Math.ceil(diff / 60000);
+            if (mins < 60) {
+              resetFormatted = `${mins}m`;
+            } else {
+              resetFormatted = `${Math.floor(mins / 60)}h ${mins % 60}m`;
+            }
+            const dateStr = resetDate.toLocaleDateString('ko-KR', {
+              weekday: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
+            resetFormatted += ` (${dateStr})`;
+          }
+        }
+        const paddedLabel = m.label.padEnd(25).substring(0, 25);
+        str += `${indicator} ${paddedLabel} | ${ccBar} | ${displayValue.padEnd(4)} | ${resetFormatted}\n`;
+      }
+      return str;
+    };
+
+    const formatTokenCount = (value) => {
+      if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+      if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+      return String(value || 0);
+    };
+
+    const formatGeminiActivity = (activity) => {
+      if (!activity || !activity.last7Days || activity.last7Days.totalTokens === 0) return '';
+      const line = (label, period) => {
+        const costStr = formatCost(estimatePeriodCost(period));
+        return `+ ${label.padEnd(25)} | ${formatTokenCount(period.totalTokens).padStart(7)} tokens | ${String(period.turns).padStart(4)} turns | ≈ ${costStr}\n`;
+      };
+      let str = ' -- [ Gemini CLI Activity ] ----------\n';
+      str += line('Last 24 Hours', activity.last24Hours);
+      str += line('Last 7 Days', activity.last7Days);
+      return str;
+    };
+
+    const categories = categorizeModels(models);
+    // Keep the tooltip hierarchy and order aligned with the status bar:
+    // AG(AG, CX, CL) | CX | CC.
+    output += formatGroup('AG · AG (Gemini)', categories.cloudCode);
+    output += formatGroup('AG · CX (Codex)', categories.codex);
+    output += formatGroup('AG · CL (Claude)', categories.claude);
+    output += formatGroup('AG · Others', categories.others);
+    output += formatExternalGroup('CX · Codex', codexQuota);
+    output += formatExternalGroup('CC · Claude Code', claudeCodeQuota);
+    output += formatGeminiActivity(geminiActivity);
+
+    return output;
+  }
+
+  getProgressBar(percentage) {
+    const totalBars = 10;
+    const filledBars = Math.round((percentage / 100) * totalBars);
+    const emptyBars = totalBars - filledBars;
+    return '█'.repeat(filledBars) + '░'.repeat(emptyBars);
+  }
+
+  showDetailsPanel(snapshot, config) {
+    if (!snapshot) {
+      vscode.window.showInformationMessage('No quota data available yet.');
+      return;
+    }
+
+    const items = [];
+
+    items.push({
+      label: '$(hubot) JAG User Insights',
+      kind: vscode.QuickPickItemKind.Separator
+    });
+
+    if (config.showUserEmail && snapshot.email) {
+      items.push({
+        label: `$(person) User: ${snapshot.email}`,
+        description: ''
+      });
+    }
+
+    if (config.showPromptCredits && snapshot.promptCredits) {
+      const { available, monthly, remainingPercentage } = snapshot.promptCredits;
+      const pct = remainingPercentage.toFixed(0);
+      items.push({
+        label: `$(pulse) Prompt Credits: ${available} / ${monthly}`,
+        description: `${pct}% remaining`
+      });
+    }
+
+    const addGroupToQuickPick = (groupName, groupModels) => {
+      if (!groupModels || groupModels.length === 0) return;
+      items.push({
+        label: groupName,
+        kind: vscode.QuickPickItemKind.Separator
+      });
+
+      for (const model of groupModels) {
+        const pct = `${model.remainingPercentage !== undefined ? model.remainingPercentage.toFixed(0) : '0'}%`;
+        const icon = (model.remainingPercentage !== undefined && model.remainingPercentage > 40) ? '$(check)' : '$(warning)';
+        items.push({
+          label: `${icon} ${model.label}`,
+          description: `${pct} remaining`,
+          detail: `Resets in: ${model.timeUntilResetFormatted}`
+        });
+      }
+    };
+
+    const addExternalToQuickPick = (groupName, quota) => {
+      if (!quota || !quota.models || quota.models.length === 0) return;
+      const confidenceLabel = this.getConfidenceLabel(quota.source);
+      items.push({
+        label: `${groupName}${confidenceLabel}`,
+        kind: vscode.QuickPickItemKind.Separator
+      });
+
+      for (const m of quota.models) {
+        const ccPct = m.remainingPercentage;
+        const icon = ccPct > 40 ? '$(check)' : '$(warning)';
+        const resetsAt = m.resetsAt;
+        let resetFormatted = m.isOutdated ? 'Outdated' : 'Ready';
+        if (resetsAt) {
+          const resetDate = new Date(resetsAt);
+          const now = new Date();
+          const diff = resetDate.getTime() - now.getTime();
+          if (diff > 0) {
+            const mins = Math.ceil(diff / 60000);
+            if (mins < 60) {
+              resetFormatted = `${mins}m`;
+            } else {
+              resetFormatted = `${Math.floor(mins / 60)}h ${mins % 60}m`;
+            }
+            const dateStr = resetDate.toLocaleDateString('ko-KR', {
+              weekday: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
+            resetFormatted += ` (${dateStr})`;
+          }
+        }
+        items.push({
+          label: `${icon} ${m.label}`,
+          description: `${ccPct.toFixed(0)}% remaining`,
+          detail: `Resets in: ${resetFormatted}`
+        });
+      }
+    };
+
+    const formatTokens = value => value >= 1000000
+      ? `${(value / 1000000).toFixed(1)}M`
+      : value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value || 0);
+
+    const categories = categorizeModels(snapshot.models || []);
+    addGroupToQuickPick('Antigravity Gemini', categories.cloudCode);
+    addGroupToQuickPick('Antigravity Claude', categories.claude);
+    addGroupToQuickPick('Antigravity Codex', categories.codex);
+    addGroupToQuickPick('Antigravity Others', categories.others);
+    addExternalToQuickPick('Claude Code (CC)', this.claudeCodeQuota);
+
+    addExternalToQuickPick('Codex (CX)', this.codexQuota);
+
+    // Gemini CLI activity section
+    if (this.geminiActivity && this.geminiActivity.last7Days && this.geminiActivity.last7Days.totalTokens > 0) {
+      const ga = this.geminiActivity;
+      items.push({
+        label: 'Gemini CLI Activity [sessions]',
+        kind: vscode.QuickPickItemKind.Separator
+      });
+      const g24h = estimatePeriodCost(ga.last24Hours);
+      const g7d  = estimatePeriodCost(ga.last7Days);
+      items.push({
+        label: '$(pulse) Last 24 Hours',
+        description: `${formatTokens(ga.last24Hours.totalTokens)} tokens`,
+        detail: `${ga.last24Hours.turns} turns · ≈ ${formatCost(g24h)}`
+      });
+      items.push({
+        label: '$(history) Last 7 Days',
+        description: `${formatTokens(ga.last7Days.totalTokens)} tokens`,
+        detail: `${ga.last7Days.turns} turns · ≈ ${formatCost(g7d)}`
+      });
+    }
+
+    items.push({
+      label: 'Actions',
+      kind: vscode.QuickPickItemKind.Separator
+    });
+
+    items.push({
+      label: '$(refresh) Refresh Quota',
+      description: 'Fetch latest quota data'
+    });
+
+    items.push({
+      label: '$(gear) Settings',
+      description: 'Configure JAG Insights'
+    });
+
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.items = items;
+    quickPick.placeholder = 'JAG Insights - Quota Information';
+    quickPick.canSelectMany = false;
+
+    quickPick.onDidAccept(() => {
+      const selected = quickPick.selectedItems[0];
+      if (selected) {
+        if (selected.label.includes('Refresh Quota')) {
+          vscode.commands.executeCommand('jagInsights.refresh');
+        } else if (selected.label.includes('Settings')) {
+          vscode.commands.executeCommand('workbench.action.openSettings', 'jagInsights');
+        }
+      }
+      quickPick.hide();
+    });
+
+    quickPick.onDidHide(() => quickPick.dispose());
+    quickPick.show();
+  }
+}
+
+module.exports = StatusBarManager;

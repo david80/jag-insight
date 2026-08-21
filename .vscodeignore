@@ -1,0 +1,10 @@
+.vscode/**
+scripts/**
+scratch/**
+test/**
+DEVELOPER.md
+daemon.log
+last_status.json
+.daemon.pid
+package-lock.json
+node_modules/**

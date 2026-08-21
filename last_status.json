@@ -1,0 +1,231 @@
+{
+  "timestamp": "2026-08-21T04:32:57.376Z",
+  "email": "davidlee800106@gmail.com",
+  "promptCredits": {
+    "available": 500,
+    "monthly": 50000,
+    "usedPercentage": 99,
+    "remainingPercentage": 1
+  },
+  "models": [
+    {
+      "label": "Gemini 3.5 Flash (High)",
+      "modelId": "MODEL_PLACEHOLDER_M84",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411650,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.1 Pro (High)",
+      "modelId": "MODEL_PLACEHOLDER_M16",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.7 Flash (High)",
+      "modelId": "MODEL_PLACEHOLDER_M298",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.6 Flash (Low)",
+      "modelId": "MODEL_PLACEHOLDER_M73",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.5 Flash (Medium)",
+      "modelId": "MODEL_PLACEHOLDER_M20",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.5 Flash (Low)",
+      "modelId": "MODEL_PLACEHOLDER_M187",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.1 Pro (Low)",
+      "modelId": "MODEL_PLACEHOLDER_M36",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Claude Sonnet 4.6 (Thinking)",
+      "modelId": "MODEL_PLACEHOLDER_M35",
+      "remainingFraction": 0.6857276,
+      "remainingPercentage": 68.57276,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T09:20:11.000Z",
+      "timeUntilReset": 17233624,
+      "timeUntilResetFormatted": "4h 48m (금) 18:20"
+    },
+    {
+      "label": "Claude Opus 4.6 (Thinking)",
+      "modelId": "MODEL_PLACEHOLDER_M26",
+      "remainingFraction": 0.6857276,
+      "remainingPercentage": 68.57276,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T09:20:11.000Z",
+      "timeUntilReset": 17233624,
+      "timeUntilResetFormatted": "4h 48m (금) 18:20"
+    },
+    {
+      "label": "GPT-OSS 120B (Medium)",
+      "modelId": "MODEL_OPENAI_GPT_OSS_120B_MEDIUM",
+      "remainingFraction": 0.6857276,
+      "remainingPercentage": 68.57276,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T09:20:11.000Z",
+      "timeUntilReset": 17233624,
+      "timeUntilResetFormatted": "4h 48m (금) 18:20"
+    },
+    {
+      "label": "Gemini 3.7 Flash (Medium)",
+      "modelId": "MODEL_PLACEHOLDER_M299",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.7 Flash (Low)",
+      "modelId": "MODEL_PLACEHOLDER_M300",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.6 Flash (High)",
+      "modelId": "MODEL_PLACEHOLDER_M71",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    },
+    {
+      "label": "Gemini 3.6 Flash (Medium)",
+      "modelId": "MODEL_PLACEHOLDER_M72",
+      "remainingFraction": 0.2740035,
+      "remainingPercentage": 27.40035,
+      "isExhausted": false,
+      "isNA": false,
+      "resetTime": "2026-08-21T05:29:49.000Z",
+      "timeUntilReset": 3411624,
+      "timeUntilResetFormatted": "57m (금) 14:29"
+    }
+  ],
+  "external": {
+    "claudeCode": {
+      "source": "claude-transcripts",
+      "models": [],
+      "activity": {
+        "source": "claude-transcripts",
+        "scannedFiles": 6,
+        "last24Hours": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "totalTokens": 0,
+          "turns": 0,
+          "sessions": 0,
+          "models": {},
+          "modelTokens": {}
+        },
+        "last7Days": {
+          "inputTokens": 392,
+          "outputTokens": 271842,
+          "cacheReadTokens": 28617260,
+          "cacheCreationTokens": 731193,
+          "totalTokens": 29620687,
+          "turns": 201,
+          "sessions": 4,
+          "models": {
+            "claude-opus-5": 18826537,
+            "claude-fable-5": 10794150
+          },
+          "modelTokens": {
+            "claude-opus-5": {
+              "inputTokens": 236,
+              "outputTokens": 153111,
+              "cacheReadTokens": 18343950,
+              "cacheCreationTokens": 329240
+            },
+            "claude-fable-5": {
+              "inputTokens": 156,
+              "outputTokens": 118731,
+              "cacheReadTokens": 10273310,
+              "cacheCreationTokens": 401953
+            }
+          }
+        }
+      }
+    },
+    "codex": {
+      "source": "codex-sessions",
+      "sessionFile": "/Users/davidlee/.codex/sessions/2026/08/21/rollout-2026-08-21T11-53-01-01a0223c-6f6d-7a81-83ce-5abaa89e965f.jsonl",
+      "timestamp": "2026-08-21T04:18:20.620Z",
+      "planType": "pro",
+      "models": [
+        {
+          "label": "Weekly Limit",
+          "remainingPercentage": 90,
+          "usedPercentage": 10,
+          "windowMinutes": 10080,
+          "resetsAt": "2026-08-27T04:08:08.000Z",
+          "isOutdated": false
+        }
+      ]
+    },
+    "gemini": null
+  }
+}
