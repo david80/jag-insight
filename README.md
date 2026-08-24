@@ -17,7 +17,7 @@ Claude Code, Codex, Gemini CLI 사용량은 두 IDE에서 동일하게 동작합
 ### 🌟 주요 기능
 
 1. **실시간 상태 표시줄 연동**
-   - IDE 오른쪽 하단 상태 표시줄에 `🤖 AG(AG 71%, CX 100%, CL 100%) | CX:91% | CC:64%` 형태로 노출됩니다.
+   - IDE 오른쪽 하단 상태 표시줄에 `🤖 AG(AG 71%, Codex 100%, CloudCode 100%) | Codex:91% | CloudCode:64%` 형태로 노출됩니다.
 2. **서비스별 그룹화된 마크다운 툴팁 (마우스 호버)**
    - 상태 표시줄에 마우스를 올리면 예쁜 마크다운 형식의 툴팁이 팝업됩니다.
    - 사용자 계정 이메일 및 프롬프트 크레딧 정보 잔량을 퍼센트로 보여줍니다.
@@ -40,8 +40,8 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
 - **`jagInsights.showUserEmail`**: 툴팁 및 상세창에 계정 이메일을 보여줄지 여부 (기본값: `true`)
 - **`jagInsights.showPromptCredits`**: 툴팁 및 상세창에 총 프롬프트 크레딧 한도를 보여줄지 여부 (기본값: `true`)
 - **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트(AG, CX, CL)를 노출할지 여부 (기본값: `true`)
-- **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}`)
-  - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcl}`/`{cl}`: Antigravity Claude
+- **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+  - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: 로컬 Codex (퍼센트 단위)
   - `{cc}`: Claude Code (쿼터 퍼센트 노출. 단, 쿼터 제한이 없거나 정보 수집 전이면 지난 7일간 누적 토큰 사용량(예: `1.5M(7d)`)을 대신 표시)
 - **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions`를 자동 탐지합니다.
@@ -79,17 +79,17 @@ Claude Code, Codex, and Gemini CLI usage works in both IDEs. Antigravity-specifi
 ### 🌟 Key Features
 
 1. **Real-time Status Bar Integration**
-   - Displays as `🤖 AG(AG 71%, CX 100%, CL 100%) | CX:91% | CC:64%` in the bottom-right status bar of the IDE.
-   - AG, CX, and CC are separate status bar items, so each provider independently shows its normal, warning, or exhausted background color.
+   - Displays as `🤖 AG(AG 71%, Codex 100%, CloudCode 100%) | Codex:91% | CloudCode:64%` in the bottom-right status bar of the IDE.
+   - Separate status bar items allow each provider to independently show its normal, warning, or exhausted background color.
 2. **Markdown Tooltip Grouped by Provider (Mouse Hover)**
    - Hovering over the status bar item pops up a clean Markdown tooltip.
    - Displays the user account email and prompt credit usage as a percentage.
-   - Uses the same provider hierarchy and order as the status bar: **AG (AG/CX/CL) → CX → CC**.
+   - Uses the same provider hierarchy and order as the status bar: **AG (AG/Codex/CloudCode) → Codex → CloudCode**.
      - **AG · AG**: Antigravity Gemini
-     - **AG · CX**: Antigravity Codex
-     - **AG · CL**: Antigravity Claude
-     - **CX**: Local Codex
-     - **CC**: Claude Code
+     - **AG · Codex**: Antigravity Codex
+     - **AG · CloudCode**: Antigravity Claude
+     - **Codex**: Local Codex
+     - **CloudCode**: Claude Code
    - Provides progress bars (`█████░░░░░ 50%`) and reset schedules for each model.
    - Inside the tooltip, links like `[ REFRESH ]` or `[ CONFIG ]` allow instant actions.
 3. **Detail Panel & Quick Actions (Click)**
@@ -104,10 +104,10 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
 - **`jagInsights.pollIntervalMs`**: Polling interval in milliseconds to fetch quota information. (Default: `30000` = 30s)
 - **`jagInsights.showUserEmail`**: Display the user email in the tooltip and detail panel. (Default: `true`)
 - **`jagInsights.showPromptCredits`**: Display total prompt credits in the tooltip and detail panel. (Default: `true`)
-- **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages (AG, CX, CL) directly on the status bar text. (Default: `true`)
-- **`jagInsights.statusBarFormat`**: Status bar template. (Default: `$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}`)
-  - Use `|` to separate the AG, CX, and CC provider sections so each section can receive its own status color.
-  - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcl}`/`{cl}`: Antigravity Claude
+- **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages directly on the status bar text. (Default: `true`)
+- **`jagInsights.statusBarFormat`**: Status bar template. (Default: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+  - Use `|` to separate the provider sections so each section can receive its own status color.
+  - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: Local Codex (percentage)
   - `{cc}`: Claude Code (Displays quota percentage, or falls back to last 7 days token count (e.g., `1.5M(7d)`) if quota info is unavailable)
 - **`jagInsights.codexSessionPath`**: Optional Codex session directory. When empty, `$CODEX_HOME/sessions` or `~/.codex/sessions` is detected automatically.

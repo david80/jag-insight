@@ -228,10 +228,10 @@ class StatusBarManager {
 
     const categories = categorizeModels(models);
     // Keep the tooltip hierarchy and order aligned with the status bar:
-    // AG(AG, CX, CL) | CX | CC.
+    // AG(AG, CX, CC) | CX | CC.
     output += formatGroup('AG · AG (Gemini)', categories.cloudCode);
     output += formatGroup('AG · CX (Codex)', categories.codex);
-    output += formatGroup('AG · CL (Claude)', categories.claude);
+    output += formatGroup('AG · CC (Claude Code)', categories.claude);
     output += formatGroup('AG · Others', categories.others);
     output += formatExternalGroup('CX · Codex', codexQuota);
     output += formatExternalGroup('CC · Claude Code', claudeCodeQuota);

@@ -61,7 +61,7 @@ test('tooltip quota groups follow the AG(AG, CX, CL) | CX | CC status bar order'
   const headings = [
     'AG · AG (Gemini)',
     'AG · CX (Codex)',
-    'AG · CL (Claude)',
+    'AG · CC (Claude Code)',
     'CX · Codex [sessions]',
     'CC · Claude Code [official]'
   ];
@@ -105,9 +105,9 @@ test('applies warning and error colors independently to AG, CX, and CC items', (
     null
   );
 
-  assert.equal(manager.items.antigravity.text, '$(hubot) AG(AG 20%, CX N/A, CL N/A)');
-  assert.equal(manager.items.codex.text, 'CX:0%');
-  assert.equal(manager.items.claudeCode.text, 'CC:80%');
+  assert.equal(manager.items.antigravity.text, '$(hubot) AG(AG 20%, Codex N/A, CloudCode N/A)');
+  assert.equal(manager.items.codex.text, 'Codex:0%');
+  assert.equal(manager.items.claudeCode.text, 'CloudCode:80%');
   assert.equal(manager.items.antigravity.backgroundColor.id, 'statusBarItem.warningBackground');
   assert.equal(manager.items.codex.backgroundColor.id, 'statusBarItem.errorBackground');
   assert.equal(manager.items.claudeCode.backgroundColor, undefined);

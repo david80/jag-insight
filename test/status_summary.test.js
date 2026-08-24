@@ -20,15 +20,16 @@ test('separates Antigravity provider quotas from external Codex and Claude Code'
   const summary = summarizeQuotas(models, codexQuota, claudeCodeQuota);
   const text = formatStatusBarText(DEFAULT_STATUS_BAR_FORMAT, summary);
 
-  assert.equal(text, '$(hubot) AG(AG 48%, CX 72%, CL 83%) | CX:91% | CC:64%');
+  assert.equal(text, '$(hubot) AG(AG 48%, Codex 72%, CloudCode 83%) | Codex:91% | CloudCode:64%');
 });
 
-test('keeps the legacy local Claude placeholder working', () => {
+test('keeps the legacy local Claude placeholder working and supports agcc', () => {
   const summary = summarizeQuotas([
     { label: 'Claude Opus', remainingPercentage: 55 }
   ], null, null);
 
   assert.equal(formatStatusBarText('CL: {cl}', summary), 'CL: 55%');
+  assert.equal(formatStatusBarText('AGCC: {agcc}', summary), 'AGCC: 55%');
 });
 
 test('falls back to Claude Code token usage rendering when rate limit percentage is missing', () => {
@@ -39,8 +40,8 @@ test('falls back to Claude Code token usage rendering when rate limit percentage
     }
   });
 
-  const text = formatStatusBarText('CC: {cc}', summary);
-  assert.equal(text, 'CC: 29.6M(7d)');
+  const text = formatStatusBarText('CloudCode: {cc}', summary);
+  assert.equal(text, 'CloudCode: 29.6M(7d)');
 });
 
 test('handles small token values in fallback rendering', () => {
@@ -51,8 +52,8 @@ test('handles small token values in fallback rendering', () => {
     }
   });
 
-  const text = formatStatusBarText('CC: {cc}', summary);
-  assert.equal(text, 'CC: 850(7d)');
+  const text = formatStatusBarText('CloudCode: {cc}', summary);
+  assert.equal(text, 'CloudCode: 850(7d)');
 });
 
 test('formats independently colorable status bar segments by provider', () => {
@@ -67,17 +68,17 @@ test('formats independently colorable status bar segments by provider', () => {
   );
 
   assert.deepEqual(formatStatusBarSegments(DEFAULT_STATUS_BAR_FORMAT, summary), {
-    antigravity: '$(hubot) AG(AG 48%, CX 72%, CL 83%)',
-    codex: 'CX:91%',
-    claudeCode: 'CC:64%'
+    antigravity: '$(hubot) AG(AG 48%, Codex 72%, CloudCode 83%)',
+    codex: 'Codex:91%',
+    claudeCode: 'CloudCode:64%'
   });
 });
 
 test('falls back to provider-separated defaults when a custom segment mixes providers', () => {
   const summary = summarizeQuotas([], null, null);
   assert.deepEqual(formatStatusBarSegments('All: {ag} / {cx} / {cc}', summary), {
-    antigravity: '$(hubot) AG(AG N/A, CX N/A, CL N/A)',
-    codex: 'CX:N/A',
-    claudeCode: 'CC:N/A'
+    antigravity: '$(hubot) AG(AG N/A, Codex N/A, CloudCode N/A)',
+    codex: 'Codex:N/A',
+    claudeCode: 'CloudCode:N/A'
   });
 });

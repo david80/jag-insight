@@ -2,9 +2,13 @@
   "name": "jag-insight",
   "displayName": "JAG Insights",
   "description": "AI quota and usage monitor for Antigravity IDE and Visual Studio Code",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "publisher": "davidlee",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/david80/jag-insight.git"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -67,8 +71,8 @@
         },
         "jagInsights.statusBarFormat": {
           "type": "string",
-          "default": "$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}",
-          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcl}/{cl} (Antigravity Claude), {cx} (Codex), {cc} (Claude Code)."
+          "default": "$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}",
+          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcc}/{agcl}/{cl} (Antigravity Claude), {cx} (Codex), {cc} (Claude Code)."
         },
         "jagInsights.claudeCodeUsagePath": {
           "type": "string",

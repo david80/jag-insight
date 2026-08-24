@@ -1,4 +1,4 @@
-const DEFAULT_STATUS_BAR_FORMAT = '$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}';
+const DEFAULT_STATUS_BAR_FORMAT = '$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}';
 
 function categorizeModels(models) {
   const cloudCode = [];
@@ -72,6 +72,7 @@ function formatStatusBarText(template, summary) {
     ag: formatPercentage(summary.antigravity),
     agcx: formatPercentage(summary.antigravityCodex),
     agcl: formatPercentage(summary.antigravityClaude),
+    agcc: formatPercentage(summary.antigravityClaude),
     cx: formatPercentage(summary.codex),
     cc: formatClaudeCodeValue(summary.claudeCode, summary.claudeCodeActivity),
     // Gemini CLI activity — shows 7d token count if available
@@ -96,7 +97,7 @@ function formatStatusBarText(template, summary) {
 
 function statusBarProviderForTemplate(segment) {
   const providers = [];
-  if (/\{(?:ag|agcx|agcl|cl)\}/.test(segment)) providers.push('antigravity');
+  if (/\{(?:ag|agcx|agcl|agcc|cl)\}/.test(segment)) providers.push('antigravity');
   if (/\{cx\}/.test(segment)) providers.push('codex');
   if (/\{cc\}/.test(segment)) providers.push('claudeCode');
   return providers.length === 1 ? providers[0] : null;

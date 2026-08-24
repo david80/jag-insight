@@ -25,14 +25,14 @@ Choose whichever method is more convenient.
 2. Open the **Extensions tab** in the left sidebar (`Cmd+Shift+X` or `Ctrl+Shift+X`).
 3. Click the **`...` (More Actions) button** at the top-right of the Extensions search bar.
 4. Select **`Install from VSIX...`** from the dropdown.
-5. Choose the provided **`jag-insight-1.2.6.vsix`** file and complete the installation.
+5. Choose the provided **`jag-insight-1.2.8.vsix`** file and complete the installation.
 6. Once installed, the monitor will load immediately in the bottom-right status bar — no IDE restart required.
 
 ### Method B: Install via Terminal
 Open a terminal, navigate to the directory containing the VSIX file, and run:
 ```bash
 # Use the launcher command matching your IDE (e.g., code, cursor, etc.)
-code --install-extension jag-insight-1.2.6.vsix
+code --install-extension jag-insight-1.2.8.vsix
 ```
 
 ---
@@ -65,8 +65,8 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.showUserEmail`**: Show email address in the tooltip (default: `true`)
 * **`jagInsights.showPromptCredits`**: Show total credit balance in the tooltip (default: `true`)
 * **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages (AG, CX, CL) in the status bar text (default: `true`)
-* **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}`)
-  * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcl}`/`{cl}`: Antigravity Claude
+* **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+  * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: Local Codex (percentage)
   * `{cc}`: Claude Code quota percentage. If no quota limit exists or data has not yet been collected, shows the cumulative 7-day token usage instead (e.g., `1.5M(7d)`)
 * **`jagInsights.codexSessionPath`**: Codex session JSONL directory. Leave blank to auto-detect `$CODEX_HOME/sessions` or `~/.codex/sessions`
@@ -99,14 +99,14 @@ Claude Code, Codex, Gemini CLI 정보는 두 IDE에서 사용할 수 있습니�
 2. 왼쪽 사이드바에서 **확장(Extensions) 탭** (단축키: `Cmd+Shift+X` 또는 `Ctrl+Shift+X`)을 클릭합니다.
 3. 확장 탭 검색창 우측 상단에 있는 **`...` (더보기) 버튼**을 클릭합니다.
 4. 드롭다운 메뉴에서 **`Install from VSIX...`**를 선택합니다.
-5. 전달받은 **`jag-insight-1.2.6.vsix`** 파일을 선택하고 설치(Install)를 완료합니다.
+5. 전달받은 **`jag-insight-1.2.8.vsix`** 파일을 선택하고 설치(Install)를 완료합니다.
 6. 설치가 완료되면 IDE를 재시작하지 않아도 우측 하단 상태 표시줄에 바로 모니터가 로드됩니다.
 
 ### 방법 B: 터미널 명령어로 즉시 설치
 터미널을 열고 VSIX 파일이 있는 경로로 이동하여 아래 명령어를 실행합니다:
 ```bash
 # 사용 중인 IDE 런처 명령어에 맞춰 실행해 주세요 (예: code, cursor 등)
-code --install-extension jag-insight-1.2.6.vsix
+code --install-extension jag-insight-1.2.8.vsix
 ```
 
 ---
@@ -139,8 +139,8 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.showUserEmail`**: 툴팁에 이메일 주소를 보여줄지 여부 (기본값: `true`)
 * **`jagInsights.showPromptCredits`**: 툴팁에 총 크레딧 잔량을 보여줄지 여부 (기본값: `true`)
 * **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트(AG, CX, CL)를 노출할지 여부 (기본값: `true`)
-* **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, CX {agcx}, CL {agcl}) | CX:{cx} | CC:{cc}`)
-  * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcl}`/`{cl}`: Antigravity Claude
+* **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+  * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: 로컬 Codex (퍼센트 단위)
   * `{cc}`: Claude Code (쿼터 퍼센트 노출. 단, 쿼터 제한이 없거나 정보 수집 전이면 지난 7일간 누적 토큰 사용량(예: `1.5M(7d)`)을 대신 표시)
 * **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions` 자동 탐지

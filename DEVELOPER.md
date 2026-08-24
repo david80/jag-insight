@@ -55,7 +55,7 @@
 
 - **방법 A (터미널)**:
   ```bash
-  code --install-extension releases/1.2.6/jag-insight-1.2.6.vsix
+  code --install-extension releases/1.2.8/jag-insight-1.2.8.vsix
   ```
 - **방법 B (IDE GUI)**:
   - Antigravity IDE 또는 Visual Studio Code의 **확장(Extensions) 탭**을 엽니다.
