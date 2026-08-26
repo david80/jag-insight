@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 // 1. Read version from package.json
 const packageJsonPath = path.join(__dirname, '../package.json');
@@ -20,9 +20,17 @@ console.log(`Packaging extension version ${version}...`);
 console.log(`Target output: ${outputFile}`);
 
 try {
-  // 3. Execute vsce package to the target output file path
-  // Using --allow-missing-repository and --skip-license to avoid interactive prompts
-  execSync(`npx @vscode/vsce package --no-yarn --allow-missing-repository --skip-license -o "${outputFile}"`, {
+  // 3. Execute the pinned local vsce package for reproducible builds.
+  const vscePath = require.resolve('@vscode/vsce/vsce');
+  execFileSync(process.execPath, [
+    vscePath,
+    'package',
+    '--no-yarn',
+    '--allow-missing-repository',
+    '--skip-license',
+    '-o',
+    outputFile
+  ], {
     stdio: 'inherit',
     cwd: path.join(__dirname, '..')
   });

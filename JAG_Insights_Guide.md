@@ -25,14 +25,14 @@ Choose whichever method is more convenient.
 2. Open the **Extensions tab** in the left sidebar (`Cmd+Shift+X` or `Ctrl+Shift+X`).
 3. Click the **`...` (More Actions) button** at the top-right of the Extensions search bar.
 4. Select **`Install from VSIX...`** from the dropdown.
-5. Choose the provided **`jag-insight-1.2.8.vsix`** file and complete the installation.
+5. Choose the provided **`jag-insight-1.3.0.vsix`** file and complete the installation.
 6. Once installed, the monitor will load immediately in the bottom-right status bar — no IDE restart required.
 
 ### Method B: Install via Terminal
 Open a terminal, navigate to the directory containing the VSIX file, and run:
 ```bash
 # Use the launcher command matching your IDE (e.g., code, cursor, etc.)
-code --install-extension jag-insight-1.2.8.vsix
+code --install-extension jag-insight-1.3.0.vsix
 ```
 
 ---
@@ -62,6 +62,7 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 
 * **`jagInsights.enabled`**: Show/hide the status bar monitor (default: `true`)
 * **`jagInsights.pollIntervalMs`**: Background refresh interval in milliseconds (default: `30000` = 30 s)
+* **`jagInsights.freshnessThresholdMs`**: Mark old provider data as stale (default: `120000`; at least three polling intervals)
 * **`jagInsights.showUserEmail`**: Show email address in the tooltip (default: `true`)
 * **`jagInsights.showPromptCredits`**: Show total credit balance in the tooltip (default: `true`)
 * **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages (AG, CX, CL) in the status bar text (default: `true`)
@@ -70,9 +71,12 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
   * `{cx}`: Local Codex (percentage)
   * `{cc}`: Claude Code quota percentage. If no quota limit exists or data has not yet been collected, shows the cumulative 7-day token usage instead (e.g., `1.5M(7d)`)
 * **`jagInsights.codexSessionPath`**: Codex session JSONL directory. Leave blank to auto-detect `$CODEX_HOME/sessions` or `~/.codex/sessions`
-* **`jagInsights.codexStatePath`**: Local Codex legacy monitor state file path (optional). Used as a fallback when session data is unavailable.
+* **`jagInsights.codexUseAppServer`**: Optionally use the documented Codex app-server rate-limit method (default: `false`)
+* **`jagInsights.codexAppServerCommand`**: Executable for the optional app-server integration (default: `codex`)
 * **`jagInsights.claudeCodeUsagePath`**: Claude Code status-line capture file (default: `~/.claude/jag-insights-usage.json`)
 * **`jagInsights.claudeCodeStatePath`**: Claude Code legacy monitor state file path (optional).
+* **`jagInsights.geminiSessionPath`**: Optional Gemini session root; empty detects current project-scoped and legacy layouts.
+* **`jagInsights.geminiTelemetryPath`**: Optional local Gemini OpenTelemetry log; configure `logPrompts: false`.
 
 To enable Claude Code usage tracking, run **`JAG Insights: Install Claude Code Usage Capture`** from the Command Palette, then send one message in Claude Code.
 
@@ -99,14 +103,14 @@ Claude Code, Codex, Gemini CLI 정보는 두 IDE에서 사용할 수 있습니�
 2. 왼쪽 사이드바에서 **확장(Extensions) 탭** (단축키: `Cmd+Shift+X` 또는 `Ctrl+Shift+X`)을 클릭합니다.
 3. 확장 탭 검색창 우측 상단에 있는 **`...` (더보기) 버튼**을 클릭합니다.
 4. 드롭다운 메뉴에서 **`Install from VSIX...`**를 선택합니다.
-5. 전달받은 **`jag-insight-1.2.8.vsix`** 파일을 선택하고 설치(Install)를 완료합니다.
+5. 전달받은 **`jag-insight-1.3.0.vsix`** 파일을 선택하고 설치(Install)를 완료합니다.
 6. 설치가 완료되면 IDE를 재시작하지 않아도 우측 하단 상태 표시줄에 바로 모니터가 로드됩니다.
 
 ### 방법 B: 터미널 명령어로 즉시 설치
 터미널을 열고 VSIX 파일이 있는 경로로 이동하여 아래 명령어를 실행합니다:
 ```bash
 # 사용 중인 IDE 런처 명령어에 맞춰 실행해 주세요 (예: code, cursor 등)
-code --install-extension jag-insight-1.2.8.vsix
+code --install-extension jag-insight-1.3.0.vsix
 ```
 
 ---
@@ -136,6 +140,7 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 
 * **`jagInsights.enabled`**: 상태 표시줄에 모니터를 띄울지 여부 (기본값: `true`)
 * **`jagInsights.pollIntervalMs`**: 백그라운드 갱신 주기 (밀리초 단위, 기본값: `30000` = 30초)
+* **`jagInsights.freshnessThresholdMs`**: 오래된 공급자 데이터 표시 기준 (기본값: `120000`, 최소 폴링 주기의 3배)
 * **`jagInsights.showUserEmail`**: 툴팁에 이메일 주소를 보여줄지 여부 (기본값: `true`)
 * **`jagInsights.showPromptCredits`**: 툴팁에 총 크레딧 잔량을 보여줄지 여부 (기본값: `true`)
 * **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트(AG, CX, CL)를 노출할지 여부 (기본값: `true`)
@@ -144,8 +149,11 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
   * `{cx}`: 로컬 Codex (퍼센트 단위)
   * `{cc}`: Claude Code (쿼터 퍼센트 노출. 단, 쿼터 제한이 없거나 정보 수집 전이면 지난 7일간 누적 토큰 사용량(예: `1.5M(7d)`)을 대신 표시)
 * **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions` 자동 탐지
-* **`jagInsights.codexStatePath`**: 로컬 Codex 레거시 모니터 상태 파일 경로 (선택 사항). 세션 데이터를 가져올 수 없을 때의 백업용 파일입니다.
+* **`jagInsights.codexUseAppServer`**: 공식 Codex app-server 쿼터 조회를 선택적으로 사용 (기본값: `false`)
+* **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 실행 파일 (기본값: `codex`)
 * **`jagInsights.claudeCodeUsagePath`**: Claude Code status-line 캡처 파일 (기본값: `~/.claude/jag-insights-usage.json`)
 * **`jagInsights.claudeCodeStatePath`**: Claude Code 레거시 모니터 상태 파일 경로 (선택 사항).
+* **`jagInsights.geminiSessionPath`**: Gemini 세션 루트 (비우면 최신 프로젝트별 구조와 레거시 구조 자동 탐지)
+* **`jagInsights.geminiTelemetryPath`**: 로컬 Gemini OpenTelemetry 로그 (선택 사항, `logPrompts: false` 권장)
 
 Claude Code 사용량을 활성화하려면 명령 팔레트에서 **`JAG Insights: Install Claude Code Usage Capture`**를 실행한 뒤 Claude Code에 메시지를 하나 보냅니다.

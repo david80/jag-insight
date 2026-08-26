@@ -16,7 +16,7 @@ class QuotaClient {
 
       const snapshot = this.parseResponse(data);
       logger.info('QuotaClient', 'Quota response successfully fetched and parsed', {
-        email: snapshot.email,
+        hasUserIdentity: snapshot.email !== 'Unknown User',
         hasPromptCredits: !!snapshot.promptCredits,
         modelsCount: snapshot.models.length
       });
@@ -31,17 +31,18 @@ class QuotaClient {
   request(port, token, path, body) {
     return new Promise((resolve, reject) => {
       const data = JSON.stringify(body);
+      const headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data),
+        'Connect-Protocol-Version': '1'
+      };
+      if (token) headers['X-Codeium-Csrf-Token'] = token;
       const options = {
         hostname: '127.0.0.1',
         port,
         path,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(data),
-          'Connect-Protocol-Version': '1',
-          'X-Codeium-Csrf-Token': token
-        },
+        headers,
         rejectUnauthorized: false, // Self-signed local cert
         timeout: 5000
       };
@@ -52,7 +53,7 @@ class QuotaClient {
         res.on('end', () => {
           try {
             if (res.statusCode && res.statusCode >= 400) {
-              reject(new Error(`Request failed with status ${res.statusCode}: ${responseBody}`));
+              reject(new Error(`Request failed with status ${res.statusCode}`));
               return;
             }
             resolve(JSON.parse(responseBody));

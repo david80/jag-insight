@@ -8,11 +8,13 @@
 
 **안티그래비티 IDE와 Microsoft Visual Studio Code를 모두 지원**하며, IDE의 작업표시줄(상태 표시줄, Status Bar)에 AI 사용 한도와 활동 정보를 실시간으로 표시하는 경량 확장 프로그램(Extension)입니다.
 
-로컬에서 구동되는 언어 서버(Language Server)와 직접 통신(Connect-RPC)하고 Codex 세션 파일을 읽어 정보를 받아오므로, 외부 클라우드 통신이나 CLI(`agy`) 호출 없이 매우 빠르게 동작하며 의존 라이브러리가 필요하지 않습니다.
+기본 모드에서는 로컬에서 구동되는 언어 서버(Language Server)와 직접 통신(Connect-RPC)하고 Codex 세션 파일을 읽으므로 외부 클라우드 통신이나 CLI(`agy`) 호출 없이 동작하며, 런타임 의존 라이브러리가 필요하지 않습니다. 선택적 Codex app-server 모드를 켠 경우에만 Codex를 통한 네트워크 요청이 발생할 수 있습니다.
 
 macOS와 Windows를 지원합니다. 사용자 홈 경로는 운영체제에 맞게 자동 해석하며, Windows에서는 PowerShell과 `netstat.exe`를 사용해 Antigravity Language Server를 탐지합니다. 로그와 런타임 상태는 확장 프로그램 설치 폴더가 아닌 IDE의 워크스페이스 저장소에 기록됩니다.
 
 Claude Code, Codex, Gemini CLI 사용량은 두 IDE에서 동일하게 동작합니다. Antigravity 전용 AG 모델 쿼터는 Antigravity Language Server가 실행 중일 때 표시되며, 일반 VS Code에서 해당 서버를 찾을 수 없으면 AG 항목만 `N/A`로 표시됩니다.
+
+버전 1.3부터는 공급자별 데이터가 오래되었는지 상태 표시줄과 툴팁에 표시하며, JSONL 파일은 변경된 부분만 증분 처리합니다. Gemini CLI의 최신 프로젝트별 JSON/JSONL 세션 구조도 자동 탐지합니다.
 
 ### 🌟 주요 기능
 
@@ -37,6 +39,7 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
 
 - **`jagInsights.enabled`**: 상태 표시줄에 모니터를 띄울지 여부 (기본값: `true`)
 - **`jagInsights.pollIntervalMs`**: 사용량 정보 갱신 폴링 주기 (밀리초 단위, 기본값: `30000` = 30초)
+- **`jagInsights.freshnessThresholdMs`**: 데이터를 오래된 것으로 표시하는 기준 (기본값: `120000`). 실제 기준은 폴링 주기의 3배보다 짧아지지 않습니다.
 - **`jagInsights.showUserEmail`**: 툴팁 및 상세창에 계정 이메일을 보여줄지 여부 (기본값: `true`)
 - **`jagInsights.showPromptCredits`**: 툴팁 및 상세창에 총 프롬프트 크레딧 한도를 보여줄지 여부 (기본값: `true`)
 - **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트(AG, CX, CL)를 노출할지 여부 (기본값: `true`)
@@ -45,15 +48,20 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
   - `{cx}`: 로컬 Codex (퍼센트 단위)
   - `{cc}`: Claude Code (쿼터 퍼센트 노출. 단, 쿼터 제한이 없거나 정보 수집 전이면 지난 7일간 누적 토큰 사용량(예: `1.5M(7d)`)을 대신 표시)
 - **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions`를 자동 탐지합니다.
-- **`jagInsights.codexStatePath`**: 로컬 Codex 레거시 모니터 상태 파일 경로 (선택 사항). 세션 데이터를 가져올 수 없을 때의 백업용 파일입니다.
+- **`jagInsights.codexUseAppServer`**: 공식 Codex app-server의 `account/rateLimits/read`를 선택적으로 사용합니다 (기본값: `false`). 실패하면 로컬 세션으로 돌아갑니다.
+- **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 Codex 실행 파일 (기본값: `codex`).
 - **`jagInsights.claudeCodeUsagePath`**: Claude Code status-line 캡처 파일 (기본값: `~/.claude/jag-insights-usage.json`)
 - **`jagInsights.claudeCodeStatePath`**: Claude Code 레거시 모니터 상태 파일 경로 (선택 사항).
+- **`jagInsights.geminiSessionPath`**: Gemini CLI 세션 루트. 비우면 최신 `~/.gemini/tmp/<project>/chats`와 레거시 `~/.gemini/sessions`를 함께 탐지합니다.
+- **`jagInsights.geminiTelemetryPath`**: 로컬 Gemini CLI OpenTelemetry 로그 경로 (선택 사항). Gemini 설정에서 `target: "local"`, `logPrompts: false` 사용을 권장합니다.
 
 Claude Code의 `~/.claude.json` 사용률 캐시에서 5시간·7일 한도를 자동으로 읽습니다. 해당 캐시를 사용할 수 없다면 명령 팔레트에서 **`JAG Insights: Install Claude Code Usage Capture`**를 한 번 실행한 뒤 Claude Code에 메시지를 하나 보내세요. Claude Code가 전달하는 한도 필드만 별도 캐시에 저장하며 대화 내용과 인증정보는 저장하지 않습니다.
 
 한도 데이터가 아직 없더라도 `~/.claude/projects/`와 Xcode Claude 연동 디렉터리의 JSONL에서 최근 24시간·7일 토큰 활동을 집계해 툴팁과 상세 메뉴에 표시합니다. 스트리밍 중 중복 기록되는 응답은 `message.id`별 마지막 값만 반영합니다. 이 방식은 MIT 라이선스의 [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage)를 참고했습니다.
 
 Codex 사용량 수집 방식은 MIT 라이선스의 [Codex Rate Limit Monitor](https://github.com/xiangz19/codex-ratelimit-vscode) 구현을 참고했습니다.
+
+비용은 API 가격을 사용한 참고 추정치이며 구독 청구액이 아닙니다. 가격을 알 수 없는 모델은 임의의 기본 가격을 적용하지 않고 `Unpriced`로 표시합니다.
 
 ### 🪵 문제 해결 및 트러블슈팅 (Troubleshooting)
 
@@ -70,11 +78,13 @@ Codex 사용량 수집 방식은 MIT 라이선스의 [Codex Rate Limit Monitor](
 
 A lightweight extension for **both Antigravity IDE and Microsoft Visual Studio Code** that displays AI quotas and activity in real time on the IDE status bar.
 
-It communicates with the locally running language server (Connect-RPC) and reads Codex session files, so it works without external cloud requests or CLI (`agy`) calls and requires no runtime dependencies.
+By default it communicates with the local language server (Connect-RPC) and reads Codex session files, so it works without external cloud requests or CLI (`agy`) calls and requires no runtime dependencies. Network access through Codex is possible only when the optional app-server mode is enabled.
 
 macOS and Windows are supported. Home-directory paths are resolved for the current platform, Windows process discovery uses PowerShell and `netstat.exe`, and runtime logs/state are stored in the IDE workspace storage rather than the extension installation directory.
 
 Claude Code, Codex, and Gemini CLI usage works in both IDEs. Antigravity-specific AG model quotas appear when the Antigravity Language Server is running; in standard VS Code without that server, only the AG fields display `N/A`.
+
+Starting with version 1.3, provider freshness is visible in the status bar and tooltip, JSONL files are parsed incrementally, and current project-scoped Gemini CLI JSON/JSONL sessions are detected automatically.
 
 ### 🌟 Key Features
 
@@ -102,6 +112,7 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
 
 - **`jagInsights.enabled`**: Enable or disable the status bar item. (Default: `true`)
 - **`jagInsights.pollIntervalMs`**: Polling interval in milliseconds to fetch quota information. (Default: `30000` = 30s)
+- **`jagInsights.freshnessThresholdMs`**: Age at which data is marked stale. (Default: `120000`; never shorter than three polling intervals.)
 - **`jagInsights.showUserEmail`**: Display the user email in the tooltip and detail panel. (Default: `true`)
 - **`jagInsights.showPromptCredits`**: Display total prompt credits in the tooltip and detail panel. (Default: `true`)
 - **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages directly on the status bar text. (Default: `true`)
@@ -111,15 +122,20 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
   - `{cx}`: Local Codex (percentage)
   - `{cc}`: Claude Code (Displays quota percentage, or falls back to last 7 days token count (e.g., `1.5M(7d)`) if quota info is unavailable)
 - **`jagInsights.codexSessionPath`**: Optional Codex session directory. When empty, `$CODEX_HOME/sessions` or `~/.codex/sessions` is detected automatically.
-- **`jagInsights.codexStatePath`**: Optional legacy Codex monitor state file, used as a fallback only when session data is unavailable.
+- **`jagInsights.codexUseAppServer`**: Optionally query the documented Codex app-server `account/rateLimits/read` method. (Default: `false`; local sessions remain the fallback.)
+- **`jagInsights.codexAppServerCommand`**: Codex executable for the optional app-server integration. (Default: `codex`.)
 - **`jagInsights.claudeCodeUsagePath`**: Claude Code status-line capture file. (Default: `~/.claude/jag-insights-usage.json`)
 - **`jagInsights.claudeCodeStatePath`**: Optional legacy Claude Code monitor state file.
+- **`jagInsights.geminiSessionPath`**: Optional Gemini session root. Empty detects current `~/.gemini/tmp/<project>/chats` and legacy `~/.gemini/sessions` data.
+- **`jagInsights.geminiTelemetryPath`**: Optional local Gemini CLI OpenTelemetry log. Use `target: "local"` and `logPrompts: false` in Gemini CLI.
 
 JAG Insights automatically reads the 5-hour and 7-day limits from Claude Code's `~/.claude.json` usage cache. If that cache is unavailable, run **`JAG Insights: Install Claude Code Usage Capture`** once from the command palette, then send one Claude Code message. Only limit fields are stored in the separate cache; conversation content and credentials are never stored.
 
 When Claude Code rate-limit data is unavailable, the status bar can fall back to a compact 7-day token count collected from `~/.claude/projects/` and the Xcode Claude integration directory. This activity is not shown as a separate tooltip or details section. Streamed duplicates are deduplicated by `message.id`, keeping the final record. This approach is based on the MIT-licensed [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage).
 
 The Codex usage reader is based on the approach used by the MIT-licensed [Codex Rate Limit Monitor](https://github.com/xiangz19/codex-ratelimit-vscode).
+
+Costs are API-equivalent estimates, not subscription billing. Unknown model prices are shown as `Unpriced` instead of being assigned a fabricated fallback rate.
 
 ### 🪵 Troubleshooting
 

@@ -13,6 +13,8 @@ const geminiUsage = require('./gemini_usage');
 const STORAGE_DIR = process.env.JAG_INSIGHTS_STORAGE_DIR || path.join(os.homedir(), '.jag-insights');
 fs.mkdirSync(STORAGE_DIR, { recursive: true });
 logger.setStorageDirectory(STORAGE_DIR);
+claudeTranscriptUsage.setClaudeTranscriptCacheDirectory(STORAGE_DIR);
+geminiUsage.setGeminiCacheDirectory(STORAGE_DIR);
 
 const PID_FILE = path.join(STORAGE_DIR, '.daemon.pid');
 const STATUS_FILE = path.join(STORAGE_DIR, 'last_status.json');

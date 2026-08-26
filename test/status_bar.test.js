@@ -14,8 +14,9 @@ Module._load = function loadWithVscodeStub(request, parent, isMain) {
         }
       },
       MarkdownString: class MarkdownString {
-        appendMarkdown() {}
-        appendCodeblock() {}
+        constructor() { this.markdown = ''; }
+        appendMarkdown(value) { this.markdown += value; return this; }
+        appendCodeblock(value) { this.markdown += value; return this; }
       },
       window: {
         createStatusBarItem: () => {
@@ -123,4 +124,23 @@ test('hides every provider item when the extension is disabled', () => {
   manager.update(null, { enabled: false }, null, null, null);
 
   for (const item of Object.values(manager.items)) assert.equal(item.visible, false);
+});
+
+test('limits trusted tooltip commands and escapes external identity text', () => {
+  const manager = new StatusBarManager();
+  const tooltip = manager.buildTooltip({
+    timestamp: '2026-08-25T00:00:00.000Z',
+    email: 'person` [run](command:evil)',
+    models: []
+  }, {
+    showUserEmail: true,
+    showPromptCredits: false
+  });
+
+  assert.deepEqual(tooltip.isTrusted.enabledCommands, [
+    'jagInsights.refresh',
+    'workbench.action.openSettings'
+  ]);
+  assert.equal(tooltip.supportHtml, false);
+  assert.match(tooltip.markdown, /person\\` \\\[run\\\]\\\(command:evil\\\)/);
 });

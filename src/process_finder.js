@@ -186,7 +186,8 @@ class ProcessFinder {
         rejectUnauthorized: false,
         timeout: 1500
       }, res => {
-        resolve(res.statusCode !== undefined);
+        const status = Number(res.statusCode);
+        resolve(Number.isFinite(status) && status < 500 && status !== 404);
         req.destroy();
       });
 
@@ -204,7 +205,7 @@ class ProcessFinder {
     const tokenMatch = processOutput.match(/--csrf[_-]token(?:=|\s+)([a-zA-Z0-9-]+)/);
     if (tokenMatch) return tokenMatch[1];
     const uuidMatch = processOutput.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-    return uuidMatch ? uuidMatch[0] : 'jag-insights';
+    return uuidMatch ? uuidMatch[0] : null;
   }
 }
 

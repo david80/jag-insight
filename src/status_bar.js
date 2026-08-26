@@ -6,6 +6,19 @@ const {
   categorizeModels
 } = require('./status_summary');
 const { estimatePeriodCost, formatCost } = require('./cost_estimator');
+const { formatAge } = require('./provider_state');
+
+function safeDisplayText(value, maxLength = 80) {
+  return String(value ?? '')
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength);
+}
+
+function escapeMarkdown(value) {
+  return safeDisplayText(value).replace(/[\\`*_{}\[\]()<>#+.!|~-]/g, '\\$&');
+}
 
 class StatusBarManager {
   constructor() {
@@ -85,6 +98,12 @@ class StatusBarManager {
 
     for (const [provider, item] of Object.entries(this.items)) {
       item.text = text[provider];
+      const providerData = provider === 'antigravity'
+        ? snapshot
+        : provider === 'codex' ? codexQuota : claudeCodeQuota;
+      if (item.text && providerData && providerData.health && providerData.health.status === 'stale') {
+        item.text += ' $(history)';
+      }
       item.tooltip = tooltip;
       item.backgroundColor = this.getStatusBackground(percentages[provider]);
       if (item.text) item.show();
@@ -109,14 +128,16 @@ class StatusBarManager {
 
   buildTooltip(snapshot, config) {
     const md = new vscode.MarkdownString();
-    md.isTrusted = true;
-    md.supportHtml = true;
+    md.isTrusted = {
+      enabledCommands: ['jagInsights.refresh', 'workbench.action.openSettings']
+    };
+    md.supportHtml = false;
     md.supportThemeIcons = true;
 
     md.appendMarkdown('\n### $(hubot) JAG User Insights\n');
 
     if (config.showUserEmail && snapshot.email) {
-      md.appendMarkdown(`\n$(person) **User**: \`${snapshot.email}\`\n`);
+      md.appendMarkdown(`\n$(person) **User**: ${escapeMarkdown(snapshot.email)}\n`);
     }
 
     if (config.showPromptCredits && snapshot.promptCredits) {
@@ -126,6 +147,14 @@ class StatusBarManager {
     }
 
     md.appendMarkdown('\n\n');
+
+    const states = [
+      this.formatHealth('AG', snapshot),
+      this.formatHealth('CX', this.codexQuota),
+      this.formatHealth('CC', this.claudeCodeQuota),
+      this.formatHealth('Gemini', this.geminiActivity)
+    ].filter(Boolean);
+    if (states.length > 0) md.appendMarkdown(`$(info) ${states.map(state => escapeMarkdown(state)).join(' · ')}\n\n`);
 
     md.appendCodeblock(this.buildQuotaTable(snapshot.models, this.claudeCodeQuota, this.codexQuota, this.geminiActivity), 'diff');
     md.appendMarkdown('\n\n');
@@ -150,8 +179,17 @@ class StatusBarManager {
     if (source === 'claude-local-cache') return ' [local cache]';
     if (source === 'claude-transcripts') return ' [estimated]';
     if (source === 'codex-sessions') return ' [sessions]';
+    if (source === 'codex-app-server') return ' [app-server]';
     if (source === 'gemini-sessions') return ' [sessions]';
+    if (source === 'gemini-telemetry') return ' [telemetry]';
     return '';
+  }
+
+  formatHealth(label, data) {
+    const state = data && data.health;
+    if (!state) return '';
+    const age = state.fetchedAt ? ` ${formatAge(state.fetchedAt)}` : '';
+    return `${label}: ${state.status}${age}`;
   }
 
   buildQuotaTable(models, claudeCodeQuota, codexQuota, geminiActivity) {
@@ -165,7 +203,7 @@ class StatusBarManager {
         const indicator = pctValue > 40 ? '+' : '-';
         const bar = this.getProgressBar(pctValue);
         const displayValue = `${pctValue.toFixed(0)}%`;
-        const paddedLabel = m.label.padEnd(25).substring(0, 25);
+        const paddedLabel = safeDisplayText(m.label, 25).padEnd(25);
         str += `${indicator} ${paddedLabel} | ${bar} | ${displayValue.padEnd(4)} | ${m.timeUntilResetFormatted}\n`;
       }
       return str;
@@ -174,7 +212,10 @@ class StatusBarManager {
     const formatExternalGroup = (groupName, quota) => {
       if (!quota || !quota.models || quota.models.length === 0) return '';
       const confidenceLabel = this.getConfidenceLabel(quota.source);
-      let str = ` -- [ ${groupName}${confidenceLabel} ] -----------------\n`;
+      const healthLabel = quota.health && quota.health.status !== 'fresh'
+        ? ` [${safeDisplayText(quota.health.status, 12)}]`
+        : '';
+      let str = ` -- [ ${groupName}${confidenceLabel}${healthLabel} ] -----------------\n`;
       for (const m of quota.models) {
         const ccPct = m.remainingPercentage;
         const ccBar = this.getProgressBar(ccPct);
@@ -202,7 +243,7 @@ class StatusBarManager {
             resetFormatted += ` (${dateStr})`;
           }
         }
-        const paddedLabel = m.label.padEnd(25).substring(0, 25);
+        const paddedLabel = safeDisplayText(m.label, 25).padEnd(25);
         str += `${indicator} ${paddedLabel} | ${ccBar} | ${displayValue.padEnd(4)} | ${resetFormatted}\n`;
       }
       return str;
@@ -218,7 +259,8 @@ class StatusBarManager {
       if (!activity || !activity.last7Days || activity.last7Days.totalTokens === 0) return '';
       const line = (label, period) => {
         const costStr = formatCost(estimatePeriodCost(period));
-        return `+ ${label.padEnd(25)} | ${formatTokenCount(period.totalTokens).padStart(7)} tokens | ${String(period.turns).padStart(4)} turns | ≈ ${costStr}\n`;
+        const renderedCost = costStr === 'Unpriced' ? costStr : `≈ ${costStr}`;
+        return `+ ${label.padEnd(25)} | ${formatTokenCount(period.totalTokens).padStart(7)} tokens | ${String(period.turns).padStart(4)} turns | ${renderedCost}\n`;
       };
       let str = ' -- [ Gemini CLI Activity ] ----------\n';
       str += line('Last 24 Hours', activity.last24Hours);
@@ -242,7 +284,8 @@ class StatusBarManager {
 
   getProgressBar(percentage) {
     const totalBars = 10;
-    const filledBars = Math.round((percentage / 100) * totalBars);
+    const bounded = Math.max(0, Math.min(100, Number(percentage) || 0));
+    const filledBars = Math.round((bounded / 100) * totalBars);
     const emptyBars = totalBars - filledBars;
     return '█'.repeat(filledBars) + '░'.repeat(emptyBars);
   }
@@ -262,7 +305,7 @@ class StatusBarManager {
 
     if (config.showUserEmail && snapshot.email) {
       items.push({
-        label: `$(person) User: ${snapshot.email}`,
+        label: `$(person) User: ${safeDisplayText(snapshot.email)}`,
         description: ''
       });
     }
@@ -287,7 +330,7 @@ class StatusBarManager {
         const pct = `${model.remainingPercentage !== undefined ? model.remainingPercentage.toFixed(0) : '0'}%`;
         const icon = (model.remainingPercentage !== undefined && model.remainingPercentage > 40) ? '$(check)' : '$(warning)';
         items.push({
-          label: `${icon} ${model.label}`,
+          label: `${icon} ${safeDisplayText(model.label)}`,
           description: `${pct} remaining`,
           detail: `Resets in: ${model.timeUntilResetFormatted}`
         });
@@ -328,7 +371,7 @@ class StatusBarManager {
           }
         }
         items.push({
-          label: `${icon} ${m.label}`,
+          label: `${icon} ${safeDisplayText(m.label)}`,
           description: `${ccPct.toFixed(0)}% remaining`,
           detail: `Resets in: ${resetFormatted}`
         });
@@ -407,3 +450,5 @@ class StatusBarManager {
 }
 
 module.exports = StatusBarManager;
+module.exports.safeDisplayText = safeDisplayText;
+module.exports.escapeMarkdown = escapeMarkdown;

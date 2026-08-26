@@ -1,4 +1,6 @@
 .vscode/**
+.github/**
+.gitignore
 scripts/**
 scratch/**
 test/**

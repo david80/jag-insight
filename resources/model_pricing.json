@@ -1,0 +1,30 @@
+{
+  "version": "2026-08-25",
+  "currency": "USD",
+  "unit": "per_million_tokens",
+  "models": [
+    { "pattern": "claude-opus-4-6", "input": 5, "output": 25, "cacheRead": 0.5 },
+    { "pattern": "claude-opus-4", "input": 15, "output": 75, "cacheRead": 1.5 },
+    { "pattern": "claude-sonnet-4-6", "input": 3, "output": 15, "cacheRead": 0.3 },
+    { "pattern": "claude-sonnet-4", "input": 3, "output": 15, "cacheRead": 0.3 },
+    { "pattern": "claude-haiku-4-5", "input": 1, "output": 5, "cacheRead": 0.1 },
+    { "pattern": "claude-haiku-3-5", "input": 0.8, "output": 4, "cacheRead": 0.08 },
+
+    { "pattern": "gpt-5.6-sol", "input": 4, "output": 20, "cacheRead": 0.4 },
+    { "pattern": "gpt-5.6-terra", "input": 2, "output": 12, "cacheRead": 0.2 },
+    { "pattern": "gpt-5.6-luna", "input": 0.2, "output": 1.2, "cacheRead": 0.02 },
+    { "pattern": "gpt-5.3-codex", "input": 1.75, "output": 14, "cacheRead": 0.175 },
+    { "pattern": "gpt-5.2-codex", "input": 1.75, "output": 14, "cacheRead": 0.175 },
+    { "pattern": "gpt-5.1-codex", "input": 1.25, "output": 10, "cacheRead": 0.125 },
+    { "pattern": "gpt-5-codex", "input": 1.25, "output": 10, "cacheRead": 0.125 },
+    { "pattern": "o4-mini", "input": 1.1, "output": 4.4, "cacheRead": 0.275 },
+    { "pattern": "o3-mini", "input": 1.1, "output": 4.4, "cacheRead": 0.275 },
+    { "pattern": "gpt-4o-mini", "input": 0.15, "output": 0.6, "cacheRead": 0.075 },
+    { "pattern": "gpt-4o", "input": 2.5, "output": 10, "cacheRead": 1.25 },
+
+    { "pattern": "gemini-3.5-flash", "input": 1.5, "output": 9, "cacheRead": 0.15 },
+    { "pattern": "gemini-2.5-pro", "input": 1.25, "output": 10, "cacheRead": 0.315 },
+    { "pattern": "gemini-2.5-flash", "input": 0.075, "output": 0.3, "cacheRead": 0.019 }
+  ],
+  "cacheCreationMultipliers": { "fiveMinute": 1.25, "oneHour": 2.0 }
+}

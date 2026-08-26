@@ -30,7 +30,7 @@
 
 ### 1. 사전 준비 (Prerequisites)
 
-- 개발 환경에 **Node.js**가 설치되어 있어야 합니다.
+- 개발 환경에 **Node.js 22 이상**이 설치되어 있어야 합니다.
 - 최초 1회, 터미널에서 `npm install` 명령어를 실행하여 개발 의존성 패키지를 로드해 둡니다.
 
 ### 2. 패키징 실행 (VSIX 파일 생성)
@@ -55,9 +55,9 @@
 
 - **방법 A (터미널)**:
   ```bash
-  code --install-extension releases/1.2.8/jag-insight-1.2.8.vsix
+  code --install-extension releases/1.3.0/jag-insight-1.3.0.vsix
   ```
 - **방법 B (IDE GUI)**:
   - Antigravity IDE 또는 Visual Studio Code의 **확장(Extensions) 탭**을 엽니다.
   - 검색창 우측 상단의 **더보기 `...` 버튼**을 누르고 **`Install from VSIX...`**를 클릭합니다.
-  - 생성된 `releases/1.2.6/jag-insight-1.2.6.vsix` 파일을 선택해 설치를 완료합니다.
+  - 생성된 `releases/1.3.0/jag-insight-1.3.0.vsix` 파일을 선택해 설치를 완료합니다.
