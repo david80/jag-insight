@@ -1,7 +1,7 @@
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { IncrementalJsonlCache } = require('./incremental_jsonl_cache');
+const { defaultClaudeTranscriptRoots } = require('./claude_paths');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_LOOKBACK_DAYS = 7;
@@ -12,13 +12,7 @@ function setClaudeTranscriptCacheDirectory(directory) {
 }
 
 function defaultTranscriptRoots() {
-  const roots = [path.join(os.homedir(), '.claude', 'projects')];
-  if (process.env.CLAUDE_CONFIG_DIR) roots.push(path.join(process.env.CLAUDE_CONFIG_DIR, 'projects'));
-  roots.push(path.join(
-    os.homedir(), 'Library', 'Developer', 'Xcode', 'CodingAssistant',
-    'ClaudeAgentConfig', 'projects'
-  ));
-  return [...new Set(roots.map(root => path.resolve(root)))];
+  return defaultClaudeTranscriptRoots();
 }
 
 async function collectJsonlFiles(directory, files = []) {
@@ -138,13 +132,27 @@ function aggregatePeriod(turns, cutoff) {
 async function readClaudeTranscriptUsage(roots = defaultTranscriptRoots(), now = new Date()) {
   const cutoff = now.getTime() - DEFAULT_LOOKBACK_DAYS * DAY_MS;
   const discovered = [];
-  for (const root of roots) await collectJsonlFiles(root, discovered);
+  let rootsFound = 0;
+  for (const root of roots) {
+    try {
+      const stats = await fs.promises.stat(root);
+      if (!stats.isDirectory()) continue;
+      rootsFound += 1;
+      await collectJsonlFiles(root, discovered);
+    } catch (error) {
+      if (!error || error.code !== 'ENOENT') throw error;
+    }
+  }
 
   const activeFiles = new Set();
   const allTurns = [];
+  let latestTranscriptAt = null;
   for (const filePath of discovered) {
     let stats;
     try { stats = await fs.promises.stat(filePath); } catch { continue; }
+    if (!latestTranscriptAt || stats.mtimeMs > Date.parse(latestTranscriptAt)) {
+      latestTranscriptAt = stats.mtime.toISOString();
+    }
     if (stats.mtimeMs < cutoff) continue;
     activeFiles.add(filePath);
     allTurns.push(...await parseTranscript(filePath));
@@ -155,7 +163,11 @@ async function readClaudeTranscriptUsage(roots = defaultTranscriptRoots(), now =
   return {
     source: 'claude-transcripts',
     timestamp: now.toISOString(),
+    available: rootsFound > 0,
+    rootsFound,
+    discoveredFiles: discovered.length,
     scannedFiles: activeFiles.size,
+    latestTranscriptAt,
     last24Hours: aggregatePeriod(allTurns, now.getTime() - DAY_MS),
     last7Days: aggregatePeriod(allTurns, cutoff)
   };

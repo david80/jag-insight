@@ -189,7 +189,15 @@ class StatusBarManager {
     const state = data && data.health;
     if (!state) return '';
     const age = state.fetchedAt ? ` ${formatAge(state.fetchedAt)}` : '';
-    return `${label}: ${state.status}${age}`;
+    let detail = '';
+    const activity = data && data.activity;
+    if (label === 'CC' && activity && activity.available !== false
+        && activity.last7Days && Number(activity.last7Days.totalTokens) === 0) {
+      detail = activity.latestTranscriptAt
+        ? `, no activity in 7d (last transcript ${formatAge(activity.latestTranscriptAt)})`
+        : ', no activity in 7d';
+    }
+    return `${label}: ${state.status}${age}${detail}`;
   }
 
   buildQuotaTable(models, claudeCodeQuota, codexQuota, geminiActivity) {

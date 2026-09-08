@@ -23,16 +23,18 @@ process.stdin.on('end', async () => {
     }
 
     if (Object.keys(safeLimits).length > 0) {
-      const claudeDirectory = path.join(os.homedir(), '.claude');
+      const claudeDirectory = process.env.CLAUDE_CONFIG_DIR
+        ? path.resolve(process.env.CLAUDE_CONFIG_DIR)
+        : path.join(os.homedir(), '.claude');
       const cachePath = path.join(claudeDirectory, 'jag-insights-usage.json');
-      const temporaryPath = `${cachePath}.tmp-${process.pid}`;
+      const temporaryPath = `${cachePath}.tmp-${process.pid}-${Date.now()}`;
       await fs.promises.mkdir(claudeDirectory, { recursive: true });
       await fs.promises.writeFile(temporaryPath, `${JSON.stringify({
         source: 'claude-statusline',
         timestamp: new Date().toISOString(),
         version: data.version || null,
         rate_limits: safeLimits
-      }, null, 2)}\n`, 'utf8');
+      }, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
       await fs.promises.rename(temporaryPath, cachePath);
     }
 

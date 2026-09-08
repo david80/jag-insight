@@ -25,14 +25,14 @@ Choose whichever method is more convenient.
 2. Open the **Extensions tab** in the left sidebar (`Cmd+Shift+X` or `Ctrl+Shift+X`).
 3. Click the **`...` (More Actions) button** at the top-right of the Extensions search bar.
 4. Select **`Install from VSIX...`** from the dropdown.
-5. Choose the provided **`jag-insight-1.3.0.vsix`** file and complete the installation.
+5. Choose the provided **`jag-insight-1.3.1.vsix`** file and complete the installation.
 6. Once installed, the monitor will load immediately in the bottom-right status bar — no IDE restart required.
 
 ### Method B: Install via Terminal
 Open a terminal, navigate to the directory containing the VSIX file, and run:
 ```bash
 # Use the launcher command matching your IDE (e.g., code, cursor, etc.)
-code --install-extension jag-insight-1.3.0.vsix
+code --install-extension jag-insight-1.3.1.vsix
 ```
 
 ---
@@ -69,7 +69,7 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: Local Codex (percentage)
-  * `{cc}`: Claude Code quota percentage. If no quota limit exists or data has not yet been collected, shows the cumulative 7-day token usage instead (e.g., `1.5M(7d)`)
+  * `{cc}`: Claude Code quota percentage. If quota data is unavailable, shows cumulative 7-day token usage instead (for example, `1.5M(7d)` or `0(7d)` when discovery succeeded without recent activity)
 * **`jagInsights.codexSessionPath`**: Codex session JSONL directory. Leave blank to auto-detect `$CODEX_HOME/sessions` or `~/.codex/sessions`
 * **`jagInsights.codexUseAppServer`**: Optionally use the documented Codex app-server rate-limit method (default: `false`)
 * **`jagInsights.codexAppServerCommand`**: Executable for the optional app-server integration (default: `codex`)
@@ -103,14 +103,14 @@ Claude Code, Codex, Gemini CLI 정보는 두 IDE에서 사용할 수 있습니�
 2. 왼쪽 사이드바에서 **확장(Extensions) 탭** (단축키: `Cmd+Shift+X` 또는 `Ctrl+Shift+X`)을 클릭합니다.
 3. 확장 탭 검색창 우측 상단에 있는 **`...` (더보기) 버튼**을 클릭합니다.
 4. 드롭다운 메뉴에서 **`Install from VSIX...`**를 선택합니다.
-5. 전달받은 **`jag-insight-1.3.0.vsix`** 파일을 선택하고 설치(Install)를 완료합니다.
+5. 전달받은 **`jag-insight-1.3.1.vsix`** 파일을 선택하고 설치(Install)를 완료합니다.
 6. 설치가 완료되면 IDE를 재시작하지 않아도 우측 하단 상태 표시줄에 바로 모니터가 로드됩니다.
 
 ### 방법 B: 터미널 명령어로 즉시 설치
 터미널을 열고 VSIX 파일이 있는 경로로 이동하여 아래 명령어를 실행합니다:
 ```bash
 # 사용 중인 IDE 런처 명령어에 맞춰 실행해 주세요 (예: code, cursor 등)
-code --install-extension jag-insight-1.3.0.vsix
+code --install-extension jag-insight-1.3.1.vsix
 ```
 
 ---
@@ -147,7 +147,7 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: 로컬 Codex (퍼센트 단위)
-  * `{cc}`: Claude Code (쿼터 퍼센트 노출. 단, 쿼터 제한이 없거나 정보 수집 전이면 지난 7일간 누적 토큰 사용량(예: `1.5M(7d)`)을 대신 표시)
+  * `{cc}`: Claude Code (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 대신 표시하며, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
 * **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions` 자동 탐지
 * **`jagInsights.codexUseAppServer`**: 공식 Codex app-server 쿼터 조회를 선택적으로 사용 (기본값: `false`)
 * **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 실행 파일 (기본값: `codex`)

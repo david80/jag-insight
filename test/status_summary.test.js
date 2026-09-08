@@ -56,6 +56,24 @@ test('handles small token values in fallback rendering', () => {
   assert.equal(text, 'CloudCode: 850(7d)');
 });
 
+test('distinguishes no recent Claude Code activity from unavailable data', () => {
+  const idle = summarizeQuotas([], null, {
+    activity: {
+      available: true,
+      last7Days: { totalTokens: 0 }
+    }
+  });
+  const unavailable = summarizeQuotas([], null, {
+    activity: {
+      available: false,
+      last7Days: { totalTokens: 0 }
+    }
+  });
+
+  assert.equal(formatStatusBarText('CloudCode:{cc}', idle), 'CloudCode:0(7d)');
+  assert.equal(formatStatusBarText('CloudCode:{cc}', unavailable), 'CloudCode:N/A');
+});
+
 test('formats independently colorable status bar segments by provider', () => {
   const summary = summarizeQuotas(
     [

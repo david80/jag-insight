@@ -6,7 +6,7 @@ const { installClaudeCapture } = require('./claude_capture_installer');
 const { DEFAULT_STATUS_BAR_FORMAT } = require('./status_summary');
 const StatusBarManager = require('./status_bar');
 const { readCodexQuota, resolveSessionPath, resolveArchivePath } = require('./codex_usage');
-const { readClaudeQuota, resolveHomePath } = require('./claude_usage');
+const { readClaudeQuota, resolveHomePath, defaultClaudeQuotaPaths } = require('./claude_usage');
 const {
   readClaudeTranscriptUsage,
   defaultTranscriptRoots,
@@ -135,6 +135,10 @@ function startWatchers(config, refresh) {
     config.claudeCodeUsagePath || '~/.claude/jag-insights-usage.json'
   );
   if (claudeUsagePath) addWatcher(path.dirname(claudeUsagePath), path.basename(claudeUsagePath), debounceRefresh);
+  for (const quotaPath of defaultClaudeQuotaPaths()) {
+    if (quotaPath === claudeUsagePath) continue;
+    addWatcher(path.dirname(quotaPath), path.basename(quotaPath), debounceRefresh);
+  }
   for (const root of defaultTranscriptRoots()) addWatcher(root, '**/*.jsonl', debounceRefresh);
 
   for (const root of defaultSessionRoots(config.geminiSessionPath || '')) addWatcher(root, '**/*', debounceRefresh);

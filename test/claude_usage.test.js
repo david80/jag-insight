@@ -39,3 +39,22 @@ test('parses Claude Code cached usage from ~/.claude.json', () => {
   assert.equal(quota.timestamp, '2026-08-21T00:46:31.083Z');
   assert.deepEqual(quota.models.map(model => model.remainingPercentage), [100, 8]);
 });
+
+test('parses model-scoped weekly limits and millisecond reset timestamps', () => {
+  const reset = Date.parse('2026-08-24T00:00:00.000Z');
+  const quota = parseClaudeUsage({
+    five_hour: { utilization: 10, resets_at: reset },
+    seven_day: { utilization: 20, resets_at: null },
+    seven_day_sonnet: { utilization: 75, resets_at: null },
+    seven_day_oauth_apps: { utilization: 30, resets_at: null }
+  }, '/tmp/usage-limits.json', new Date('2026-08-21T00:00:00.000Z'));
+
+  assert.deepEqual(quota.models.map(model => model.label), [
+    '5-Hour Limit',
+    'Weekly Limit',
+    'Weekly Sonnet Limit',
+    'Weekly OAuth Apps Limit'
+  ]);
+  assert.equal(quota.models[0].resetsAt, '2026-08-24T00:00:00.000Z');
+  assert.deepEqual(quota.models.map(model => model.remainingPercentage), [90, 80, 25, 70]);
+});

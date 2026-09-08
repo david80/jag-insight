@@ -144,3 +144,21 @@ test('limits trusted tooltip commands and escapes external identity text', () =>
   assert.equal(tooltip.supportHtml, false);
   assert.match(tooltip.markdown, /person\\` \\\[run\\\]\\\(command:evil\\\)/);
 });
+
+test('explains an idle Claude Code source instead of reporting it as unavailable', () => {
+  const manager = new StatusBarManager();
+  const status = manager.formatHealth('CC', {
+    activity: {
+      available: true,
+      last7Days: { totalTokens: 0 },
+      latestTranscriptAt: '2026-08-20T00:00:00.000Z'
+    },
+    health: {
+      status: 'fresh',
+      fetchedAt: new Date().toISOString()
+    }
+  });
+
+  assert.match(status, /^CC: fresh <1m, no activity in 7d/);
+  assert.match(status, /last transcript/);
+});

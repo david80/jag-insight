@@ -58,8 +58,10 @@ function formatClaudeCodeValue(claudeCode, activity) {
   if (claudeCode !== null) {
     return `${claudeCode.toFixed(0)}%`;
   }
-  if (activity && activity.last7Days && activity.last7Days.totalTokens > 0) {
-    const tokens = activity.last7Days.totalTokens;
+  const activityTokens = activity && activity.last7Days && activity.last7Days.totalTokens;
+  if (activity && activity.available !== false && activityTokens !== null
+      && activityTokens !== undefined && Number.isFinite(Number(activityTokens))) {
+    const tokens = Number(activityTokens);
     if (tokens >= 1000000) return `${(tokens / 1000000).toFixed(1)}M(7d)`;
     if (tokens >= 1000) return `${(tokens / 1000).toFixed(1)}K(7d)`;
     return `${tokens}(7d)`;

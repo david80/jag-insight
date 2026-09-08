@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1
+
+- Distinguished an available but idle Claude Code source as `0(7d)` instead of `N/A`.
+- Added Claude data discovery through `CLAUDE_CONFIG_DIR` and `~/.config/claude`.
+- Added Claude transcript discovery diagnostics and last-activity context to the tooltip.
+- Added model-scoped weekly Claude limits and robust epoch-second/millisecond reset parsing.
+- Hardened the Claude status-line cache with profile-aware paths, unique temporary files, and owner-only permissions.
+
 ## 1.3.0
 
 - Added current Gemini CLI session discovery under `~/.gemini/tmp/<project>/chats`, supporting JSON and JSONL.

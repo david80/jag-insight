@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { resolveUserPath } = require('./path_utils');
+const { defaultClaudeQuotaPaths } = require('./claude_paths');
 
 function resolveHomePath(filePath) {
   return resolveUserPath(filePath);
@@ -24,7 +25,7 @@ function resetIso(limit) {
   if (!limit || limit.resets_at === null || limit.resets_at === undefined) return null;
   const raw = limit.resets_at;
   const date = typeof raw === 'number' || /^\d+(\.\d+)?$/.test(String(raw))
-    ? new Date(Number(raw) * 1000)
+    ? new Date(Number(raw) > 100000000000 ? Number(raw) : Number(raw) * 1000)
     : new Date(raw);
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
@@ -62,6 +63,17 @@ function parseClaudeUsage(data, sourcePath, now = new Date()) {
   const sevenDay = parseWindow(limits.seven_day || limits.sevenDay, 'Weekly Limit', now);
   if (sevenDay) models.push(sevenDay);
 
+  for (const [name, limit] of Object.entries(limits)) {
+    if (!name.startsWith('seven_day_')) continue;
+    const scope = name.slice('seven_day_'.length)
+      .split('_')
+      .filter(Boolean)
+      .map(part => part.toLowerCase() === 'oauth' ? 'OAuth' : `${part[0].toUpperCase()}${part.slice(1)}`)
+      .join(' ');
+    const scoped = parseWindow(limit, `Weekly ${scope} Limit`, now);
+    if (scoped) models.push(scoped);
+  }
+
   if (models.length === 0) return null;
   return {
     source: data.source || (localCache ? 'claude-local-cache' : 'claude-usage-cache'),
@@ -85,10 +97,8 @@ async function readJson(filePath) {
 async function readClaudeQuota(customPath, legacyPath) {
   const candidates = [
     customPath,
-    '~/.claude/jag-insights-usage.json',
+    ...defaultClaudeQuotaPaths(),
     '~/.claude.json',
-    '~/.claude/usage-limits.json',
-    '~/.claude/usage-exact.json',
     legacyPath,
     '~/.claude-monitor/state/latest.json'
   ];
@@ -111,5 +121,6 @@ async function readClaudeQuota(customPath, legacyPath) {
 module.exports = {
   parseClaudeUsage,
   readClaudeQuota,
-  resolveHomePath
+  resolveHomePath,
+  defaultClaudeQuotaPaths
 };

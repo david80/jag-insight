@@ -36,4 +36,23 @@ test('aggregates Claude transcript tokens and deduplicates streamed message reco
   assert.equal(usage.last7Days.totalTokens, 200);
   assert.equal(usage.last7Days.turns, 2);
   assert.deepEqual(usage.last7Days.models, { 'claude-opus': 100, 'claude-sonnet': 100 });
+  assert.equal(usage.available, true);
+  assert.equal(usage.rootsFound, 1);
+  assert.equal(usage.discoveredFiles, 1);
+  assert.equal(usage.scannedFiles, 1);
+});
+
+test('marks transcript activity unavailable when no configured root exists', async t => {
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'jag-claude-missing-'));
+  t.after(() => fs.rmSync(parent, { recursive: true, force: true }));
+
+  const usage = await readClaudeTranscriptUsage(
+    [path.join(parent, 'missing')],
+    new Date('2026-08-21T00:00:00.000Z')
+  );
+
+  assert.equal(usage.available, false);
+  assert.equal(usage.rootsFound, 0);
+  assert.equal(usage.discoveredFiles, 0);
+  assert.equal(usage.last7Days.totalTokens, 0);
 });

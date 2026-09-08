@@ -46,7 +46,7 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
 - **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: 로컬 Codex (퍼센트 단위)
-  - `{cc}`: Claude Code (쿼터 퍼센트 노출. 단, 쿼터 제한이 없거나 정보 수집 전이면 지난 7일간 누적 토큰 사용량(예: `1.5M(7d)`)을 대신 표시)
+  - `{cc}`: Claude Code (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 `1.5M(7d)`처럼 표시하고, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
 - **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions`를 자동 탐지합니다.
 - **`jagInsights.codexUseAppServer`**: 공식 Codex app-server의 `account/rateLimits/read`를 선택적으로 사용합니다 (기본값: `false`). 실패하면 로컬 세션으로 돌아갑니다.
 - **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 Codex 실행 파일 (기본값: `codex`).
@@ -57,7 +57,7 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
 
 Claude Code의 `~/.claude.json` 사용률 캐시에서 5시간·7일 한도를 자동으로 읽습니다. 해당 캐시를 사용할 수 없다면 명령 팔레트에서 **`JAG Insights: Install Claude Code Usage Capture`**를 한 번 실행한 뒤 Claude Code에 메시지를 하나 보내세요. Claude Code가 전달하는 한도 필드만 별도 캐시에 저장하며 대화 내용과 인증정보는 저장하지 않습니다.
 
-한도 데이터가 아직 없더라도 `~/.claude/projects/`와 Xcode Claude 연동 디렉터리의 JSONL에서 최근 24시간·7일 토큰 활동을 집계해 툴팁과 상세 메뉴에 표시합니다. 스트리밍 중 중복 기록되는 응답은 `message.id`별 마지막 값만 반영합니다. 이 방식은 MIT 라이선스의 [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage)를 참고했습니다.
+한도 데이터가 아직 없더라도 `CLAUDE_CONFIG_DIR`, `~/.claude/projects/`, `~/.config/claude/projects/`, Xcode Claude 연동 디렉터리의 JSONL에서 최근 24시간·7일 토큰 활동을 집계해 툴팁과 상세 메뉴에 표시합니다. 스트리밍 중 중복 기록되는 응답은 `message.id`별 마지막 값만 반영합니다. 이 방식은 MIT 라이선스의 [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage)를 참고했습니다.
 
 Codex 사용량 수집 방식은 MIT 라이선스의 [Codex Rate Limit Monitor](https://github.com/xiangz19/codex-ratelimit-vscode) 구현을 참고했습니다.
 
@@ -69,7 +69,11 @@ Codex 사용량 수집 방식은 MIT 라이선스의 [Codex Rate Limit Monitor](
 - **원인**: IDE가 방금 켜졌거나 백그라운드에서 안티그래비티 로컬 언어 서버(`language_server_macos_arm`) 프로세스가 아직 준비되지 않았을 때 발생합니다.
 - **해결**: 약 10~20초 뒤 언어 서버가 활성화되면 다음 폴링 주기에서 자동으로 정상 복구됩니다. 또는 상태 표시줄을 클릭하여 `Refresh Quota`를 실행하거나 `F1` 키 ➡️ `Developer: Reload Window`를 실행해 보세요.
 
-#### Q2. 툴팁에 표시되는 포트 갱신 주기를 바꾸고 싶습니다.
+#### Q2. `CloudCode:N/A`와 `CloudCode:0(7d)`는 어떻게 다른가요?
+- **`N/A`**: Claude Code 데이터 디렉터리나 공식 쿼터·로컬 활동 정보를 탐지할 수 없는 상태입니다.
+- **`0(7d)`**: Claude Code 데이터 디렉터리는 정상적으로 읽었지만 최근 7일간 기록된 사용량이 없는 상태입니다.
+
+#### Q3. 툴팁에 표시되는 포트 갱신 주기를 바꾸고 싶습니다.
 - **해결**: IDE 설정(`Cmd+,`)에서 `jagInsights.pollIntervalMs` 값을 변경하면, 익스텐션이 설정 변경을 실시간으로 감지하여 폴링 주기를 즉시 조정합니다.
 
 ---
@@ -120,7 +124,7 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
   - Use `|` to separate the provider sections so each section can receive its own status color.
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: Local Codex (percentage)
-  - `{cc}`: Claude Code (Displays quota percentage, or falls back to last 7 days token count (e.g., `1.5M(7d)`) if quota info is unavailable)
+  - `{cc}`: Claude Code (displays quota percentage, falls back to a 7-day token count such as `1.5M(7d)`, or shows `0(7d)` when discovery succeeds without recent activity)
 - **`jagInsights.codexSessionPath`**: Optional Codex session directory. When empty, `$CODEX_HOME/sessions` or `~/.codex/sessions` is detected automatically.
 - **`jagInsights.codexUseAppServer`**: Optionally query the documented Codex app-server `account/rateLimits/read` method. (Default: `false`; local sessions remain the fallback.)
 - **`jagInsights.codexAppServerCommand`**: Codex executable for the optional app-server integration. (Default: `codex`.)
@@ -131,7 +135,7 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
 
 JAG Insights automatically reads the 5-hour and 7-day limits from Claude Code's `~/.claude.json` usage cache. If that cache is unavailable, run **`JAG Insights: Install Claude Code Usage Capture`** once from the command palette, then send one Claude Code message. Only limit fields are stored in the separate cache; conversation content and credentials are never stored.
 
-When Claude Code rate-limit data is unavailable, the status bar can fall back to a compact 7-day token count collected from `~/.claude/projects/` and the Xcode Claude integration directory. This activity is not shown as a separate tooltip or details section. Streamed duplicates are deduplicated by `message.id`, keeping the final record. This approach is based on the MIT-licensed [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage).
+When Claude Code rate-limit data is unavailable, the status bar can fall back to a compact 7-day token count collected from `CLAUDE_CONFIG_DIR`, `~/.claude/projects/`, `~/.config/claude/projects/`, and the Xcode Claude integration directory. `CloudCode:N/A` means no usable source was found, while `CloudCode:0(7d)` means discovery succeeded without recent activity. Streamed duplicates are deduplicated by `message.id`, keeping the final record. This approach is based on the MIT-licensed [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage).
 
 The Codex usage reader is based on the approach used by the MIT-licensed [Codex Rate Limit Monitor](https://github.com/xiangz19/codex-ratelimit-vscode).
 
@@ -143,7 +147,11 @@ Costs are API-equivalent estimates, not subscription billing. Unknown model pric
 - **Cause**: Occurs when the IDE has just started or the background Antigravity local language server (`language_server_macos_arm`) process is not ready yet.
 - **Solution**: It will automatically recover in the next polling cycle (within 10-20 seconds) once the language server activates. You can also click the status bar and select `Refresh Quota`, or run `F1` ➡️ `Developer: Reload Window`.
 
-#### Q2. I want to change the update interval of the status bar.
+#### Q2. What is the difference between `CloudCode:N/A` and `CloudCode:0(7d)`?
+- **`N/A`**: No usable Claude Code quota or local activity source could be found.
+- **`0(7d)`**: Claude Code data was discovered successfully, but no usage was recorded in the last seven days.
+
+#### Q3. I want to change the update interval of the status bar.
 - **Solution**: Modify the `jagInsights.pollIntervalMs` value in the IDE Settings (`Cmd+,`). The extension will detect the change in real-time and adjust the polling interval instantly.
 
 ---
