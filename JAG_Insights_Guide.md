@@ -65,11 +65,13 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.freshnessThresholdMs`**: Mark old provider data as stale (default: `120000`; at least three polling intervals)
 * **`jagInsights.showUserEmail`**: Show email address in the tooltip (default: `true`)
 * **`jagInsights.showPromptCredits`**: Show total credit balance in the tooltip (default: `true`)
-* **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages (AG, CX, CL) in the status bar text (default: `true`)
-* **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+* **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages in the status bar text (default: `true`)
+* **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
+  * The `AG(...)` group is Antigravity IDE's own model quota; the segments after it are the standalone CLIs.
+  * Every percentage is remaining, not used. Claude Code's `/usage` panel reports usage, so 93% there appears as 7% here.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
-  * `{cx}`: Local Codex (percentage)
-  * `{cc}`: Claude Code quota percentage. If quota data is unavailable, shows cumulative 7-day token usage instead (for example, `1.5M(7d)` or `0(7d)` when discovery succeeded without recent activity)
+  * `{cx}`: Local Codex CLI (percentage)
+  * `{cc}`: Local Claude Code CLI quota percentage. If quota data is unavailable, shows cumulative 7-day token usage instead (for example, `1.5M(7d)` or `0(7d)` when discovery succeeded without recent activity)
 * **`jagInsights.codexSessionPath`**: Codex session JSONL directory. Leave blank to auto-detect `$CODEX_HOME/sessions` or `~/.codex/sessions`
 * **`jagInsights.codexUseAppServer`**: Optionally use the documented Codex app-server rate-limit method (default: `false`)
 * **`jagInsights.codexAppServerCommand`**: Executable for the optional app-server integration (default: `codex`)
@@ -143,11 +145,13 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.freshnessThresholdMs`**: 오래된 공급자 데이터 표시 기준 (기본값: `120000`, 최소 폴링 주기의 3배)
 * **`jagInsights.showUserEmail`**: 툴팁에 이메일 주소를 보여줄지 여부 (기본값: `true`)
 * **`jagInsights.showPromptCredits`**: 툴팁에 총 크레딧 잔량을 보여줄지 여부 (기본값: `true`)
-* **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트(AG, CX, CL)를 노출할지 여부 (기본값: `true`)
-* **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+* **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트를 노출할지 여부 (기본값: `true`)
+* **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
+  * 괄호 안의 `AG(...)`는 Antigravity IDE가 제공하는 모델 쿼터이고, 그 뒤는 독립 실행되는 CLI의 자체 쿼터입니다.
+  * 모든 퍼센트는 남은 양입니다. Claude Code `/usage` 패널은 사용량을 보여주므로, 패널의 93%가 여기서는 7%로 표시됩니다.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
-  * `{cx}`: 로컬 Codex (퍼센트 단위)
-  * `{cc}`: Claude Code (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 대신 표시하며, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
+  * `{cx}`: 로컬 Codex CLI (퍼센트 단위)
+  * `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 대신 표시하며, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
 * **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions` 자동 탐지
 * **`jagInsights.codexUseAppServer`**: 공식 Codex app-server 쿼터 조회를 선택적으로 사용 (기본값: `false`)
 * **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 실행 파일 (기본값: `codex`)

@@ -19,14 +19,15 @@ Claude Code, Codex, Gemini CLI 사용량은 두 IDE에서 동일하게 동작합
 ### 🌟 주요 기능
 
 1. **실시간 상태 표시줄 연동**
-   - IDE 오른쪽 하단 상태 표시줄에 `🤖 AG(AG 71%, Codex 100%, CloudCode 100%) | Codex:91% | CloudCode:64%` 형태로 노출됩니다.
+   - IDE 오른쪽 하단 상태 표시줄에 `🤖 AG(Gemini 71%, Codex 100%, Claude 100%) | Codex:91% | Claude Code:64%` 형태로 노출됩니다.
+   - 괄호 안의 `AG(...)`는 **Antigravity IDE가 제공하는 모델 쿼터**이고, 그 뒤의 `Codex:` / `Claude Code:`는 **독립 실행되는 CLI의 자체 쿼터**입니다. 서로 다른 값입니다.
 2. **서비스별 그룹화된 마크다운 툴팁 (마우스 호버)**
    - 상태 표시줄에 마우스를 올리면 예쁜 마크다운 형식의 툴팁이 팝업됩니다.
    - 사용자 계정 이메일 및 프롬프트 크레딧 정보 잔량을 퍼센트로 보여줍니다.
    - AI 모델들이 아래 3개 그룹으로 묶여 표시되므로 편리합니다:
-     - **Cloud Code (Google Gemini)**
-     - **OpenAI Codex**
-     - **Anthropic Claude**
+     - **AG · Gemini** / **AG · Codex** / **AG · Claude**: Antigravity IDE 모델별 쿼터
+     - **Codex**: 로컬 Codex CLI
+     - **Claude Code**: 로컬 Claude Code CLI
    - 모델별 사용량 게이지 바(`█████░░░░░ 50%`)와 초기화 일정 정보를 실시간 모니터링할 수 있습니다.
    - 툴팁 내부 링크를 통해 `[ REFRESH ]` 또는 `[ CONFIG ]` 제어가 즉시 가능합니다.
 3. **상세 정보 패널 및 액션 (클릭)**
@@ -42,11 +43,12 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
 - **`jagInsights.freshnessThresholdMs`**: 데이터를 오래된 것으로 표시하는 기준 (기본값: `120000`). 실제 기준은 폴링 주기의 3배보다 짧아지지 않습니다.
 - **`jagInsights.showUserEmail`**: 툴팁 및 상세창에 계정 이메일을 보여줄지 여부 (기본값: `true`)
 - **`jagInsights.showPromptCredits`**: 툴팁 및 상세창에 총 프롬프트 크레딧 한도를 보여줄지 여부 (기본값: `true`)
-- **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트(AG, CX, CL)를 노출할지 여부 (기본값: `true`)
-- **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+- **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트를 노출할지 여부 (기본값: `true`)
+- **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
-  - `{cx}`: 로컬 Codex (퍼센트 단위)
-  - `{cc}`: Claude Code (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 `1.5M(7d)`처럼 표시하고, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
+  - `{cx}`: 로컬 Codex CLI (퍼센트 단위)
+  - `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 `1.5M(7d)`처럼 표시하고, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
+  - 모든 퍼센트는 **남은 양**입니다. Claude Code `/usage` 패널은 **사용량**을 보여주므로, 패널의 93%가 여기서는 7%로 표시됩니다.
 - **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions`를 자동 탐지합니다.
 - **`jagInsights.codexUseAppServer`**: 공식 Codex app-server의 `account/rateLimits/read`를 선택적으로 사용합니다 (기본값: `false`). 실패하면 로컬 세션으로 돌아갑니다.
 - **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 Codex 실행 파일 (기본값: `codex`).
@@ -69,7 +71,7 @@ Codex 사용량 수집 방식은 MIT 라이선스의 [Codex Rate Limit Monitor](
 - **원인**: IDE가 방금 켜졌거나 백그라운드에서 안티그래비티 로컬 언어 서버(`language_server_macos_arm`) 프로세스가 아직 준비되지 않았을 때 발생합니다.
 - **해결**: 약 10~20초 뒤 언어 서버가 활성화되면 다음 폴링 주기에서 자동으로 정상 복구됩니다. 또는 상태 표시줄을 클릭하여 `Refresh Quota`를 실행하거나 `F1` 키 ➡️ `Developer: Reload Window`를 실행해 보세요.
 
-#### Q2. `CloudCode:N/A`와 `CloudCode:0(7d)`는 어떻게 다른가요?
+#### Q2. `Claude Code:N/A`와 `Claude Code:0(7d)`는 어떻게 다른가요?
 - **`N/A`**: Claude Code 데이터 디렉터리나 공식 쿼터·로컬 활동 정보를 탐지할 수 없는 상태입니다.
 - **`0(7d)`**: Claude Code 데이터 디렉터리는 정상적으로 읽었지만 최근 7일간 기록된 사용량이 없는 상태입니다.
 
@@ -93,17 +95,18 @@ Starting with version 1.3, provider freshness is visible in the status bar and t
 ### 🌟 Key Features
 
 1. **Real-time Status Bar Integration**
-   - Displays as `🤖 AG(AG 71%, Codex 100%, CloudCode 100%) | Codex:91% | CloudCode:64%` in the bottom-right status bar of the IDE.
+   - Displays as `🤖 AG(Gemini 71%, Codex 100%, Claude 100%) | Codex:91% | Claude Code:64%` in the bottom-right status bar of the IDE.
+   - The `AG(...)` group is **Antigravity IDE's own model quota**; the `Codex:` and `Claude Code:` segments after it are the **standalone CLIs' own quotas**. They are different numbers.
    - Separate status bar items allow each provider to independently show its normal, warning, or exhausted background color.
 2. **Markdown Tooltip Grouped by Provider (Mouse Hover)**
    - Hovering over the status bar item pops up a clean Markdown tooltip.
    - Displays the user account email and prompt credit usage as a percentage.
-   - Uses the same provider hierarchy and order as the status bar: **AG (AG/Codex/CloudCode) → Codex → CloudCode**.
-     - **AG · AG**: Antigravity Gemini
+   - Uses the same provider hierarchy and order as the status bar: **AG (Gemini/Codex/Claude) → Codex → Claude Code**.
+     - **AG · Gemini**: Antigravity Gemini
      - **AG · Codex**: Antigravity Codex
-     - **AG · CloudCode**: Antigravity Claude
-     - **Codex**: Local Codex
-     - **CloudCode**: Claude Code
+     - **AG · Claude**: Antigravity Claude
+     - **Codex**: Local Codex CLI
+     - **Claude Code**: Local Claude Code CLI
    - Provides progress bars (`█████░░░░░ 50%`) and reset schedules for each model.
    - Inside the tooltip, links like `[ REFRESH ]` or `[ CONFIG ]` allow instant actions.
 3. **Detail Panel & Quick Actions (Click)**
@@ -120,11 +123,12 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
 - **`jagInsights.showUserEmail`**: Display the user email in the tooltip and detail panel. (Default: `true`)
 - **`jagInsights.showPromptCredits`**: Display total prompt credits in the tooltip and detail panel. (Default: `true`)
 - **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages directly on the status bar text. (Default: `true`)
-- **`jagInsights.statusBarFormat`**: Status bar template. (Default: `$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}`)
+- **`jagInsights.statusBarFormat`**: Status bar template. (Default: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   - Use `|` to separate the provider sections so each section can receive its own status color.
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
-  - `{cx}`: Local Codex (percentage)
-  - `{cc}`: Claude Code (displays quota percentage, falls back to a 7-day token count such as `1.5M(7d)`, or shows `0(7d)` when discovery succeeds without recent activity)
+  - `{cx}`: Local Codex CLI (percentage)
+  - `{cc}`: Local Claude Code CLI (displays quota percentage, falls back to a 7-day token count such as `1.5M(7d)`, or shows `0(7d)` when discovery succeeds without recent activity)
+  - Every percentage is **remaining**, not used. Claude Code's `/usage` panel reports usage, so 93% there appears as 7% here.
 - **`jagInsights.codexSessionPath`**: Optional Codex session directory. When empty, `$CODEX_HOME/sessions` or `~/.codex/sessions` is detected automatically.
 - **`jagInsights.codexUseAppServer`**: Optionally query the documented Codex app-server `account/rateLimits/read` method. (Default: `false`; local sessions remain the fallback.)
 - **`jagInsights.codexAppServerCommand`**: Codex executable for the optional app-server integration. (Default: `codex`.)
@@ -135,7 +139,7 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
 
 JAG Insights automatically reads the 5-hour and 7-day limits from Claude Code's `~/.claude.json` usage cache. If that cache is unavailable, run **`JAG Insights: Install Claude Code Usage Capture`** once from the command palette, then send one Claude Code message. Only limit fields are stored in the separate cache; conversation content and credentials are never stored.
 
-When Claude Code rate-limit data is unavailable, the status bar can fall back to a compact 7-day token count collected from `CLAUDE_CONFIG_DIR`, `~/.claude/projects/`, `~/.config/claude/projects/`, and the Xcode Claude integration directory. `CloudCode:N/A` means no usable source was found, while `CloudCode:0(7d)` means discovery succeeded without recent activity. Streamed duplicates are deduplicated by `message.id`, keeping the final record. This approach is based on the MIT-licensed [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage).
+When Claude Code rate-limit data is unavailable, the status bar can fall back to a compact 7-day token count collected from `CLAUDE_CONFIG_DIR`, `~/.claude/projects/`, `~/.config/claude/projects/`, and the Xcode Claude integration directory. `Claude Code:N/A` means no usable source was found, while `Claude Code:0(7d)` means discovery succeeded without recent activity. Streamed duplicates are deduplicated by `message.id`, keeping the final record. This approach is based on the MIT-licensed [Claude Code Usage Dashboard](https://github.com/phuryn/claude-usage).
 
 The Codex usage reader is based on the approach used by the MIT-licensed [Codex Rate Limit Monitor](https://github.com/xiangz19/codex-ratelimit-vscode).
 
@@ -147,7 +151,7 @@ Costs are API-equivalent estimates, not subscription billing. Unknown model pric
 - **Cause**: Occurs when the IDE has just started or the background Antigravity local language server (`language_server_macos_arm`) process is not ready yet.
 - **Solution**: It will automatically recover in the next polling cycle (within 10-20 seconds) once the language server activates. You can also click the status bar and select `Refresh Quota`, or run `F1` ➡️ `Developer: Reload Window`.
 
-#### Q2. What is the difference between `CloudCode:N/A` and `CloudCode:0(7d)`?
+#### Q2. What is the difference between `Claude Code:N/A` and `Claude Code:0(7d)`?
 - **`N/A`**: No usable Claude Code quota or local activity source could be found.
 - **`0(7d)`**: Claude Code data was discovered successfully, but no usage was recorded in the last seven days.
 

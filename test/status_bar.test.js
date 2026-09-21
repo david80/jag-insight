@@ -38,7 +38,7 @@ Module._load = function loadWithVscodeStub(request, parent, isMain) {
 const StatusBarManager = require('../src/status_bar');
 Module._load = originalLoad;
 
-test('tooltip quota groups follow the AG(AG, CX, CL) | CX | CC status bar order', () => {
+test('tooltip quota groups follow the AG(Gemini, Codex, Claude) | Codex | Claude Code status bar order', () => {
   const manager = new StatusBarManager();
   const models = [
     { label: 'Claude Sonnet', remainingPercentage: 83, timeUntilResetFormatted: '1h' },
@@ -60,11 +60,11 @@ test('tooltip quota groups follow the AG(AG, CX, CL) | CX | CC status bar order'
 
   const tooltip = manager.buildQuotaTable(models, claudeCodeQuota, codexQuota, null);
   const headings = [
-    'AG · AG (Gemini)',
-    'AG · CX (Codex)',
-    'AG · CC (Claude Code)',
-    'CX · Codex [sessions]',
-    'CC · Claude Code [official]'
+    'AG · Gemini',
+    'AG · Codex',
+    'AG · Claude',
+    'Codex [sessions]',
+    'Claude Code [official]'
   ];
 
   for (const heading of headings) {
@@ -106,9 +106,9 @@ test('applies warning and error colors independently to AG, CX, and CC items', (
     null
   );
 
-  assert.equal(manager.items.antigravity.text, '$(hubot) AG(AG 20%, Codex N/A, CloudCode N/A)');
+  assert.equal(manager.items.antigravity.text, '$(hubot) AG(Gemini 20%, Codex N/A, Claude N/A)');
   assert.equal(manager.items.codex.text, 'Codex:0%');
-  assert.equal(manager.items.claudeCode.text, 'CloudCode:80%');
+  assert.equal(manager.items.claudeCode.text, 'Claude Code:80%');
   assert.equal(manager.items.antigravity.backgroundColor.id, 'statusBarItem.warningBackground');
   assert.equal(manager.items.codex.backgroundColor.id, 'statusBarItem.errorBackground');
   assert.equal(manager.items.claudeCode.backgroundColor, undefined);
@@ -147,7 +147,7 @@ test('limits trusted tooltip commands and escapes external identity text', () =>
 
 test('explains an idle Claude Code source instead of reporting it as unavailable', () => {
   const manager = new StatusBarManager();
-  const status = manager.formatHealth('CC', {
+  const status = manager.formatHealth('Claude Code', {
     activity: {
       available: true,
       last7Days: { totalTokens: 0 },
@@ -159,6 +159,6 @@ test('explains an idle Claude Code source instead of reporting it as unavailable
     }
   });
 
-  assert.match(status, /^CC: fresh <1m, no activity in 7d/);
+  assert.match(status, /^Claude Code: fresh <1m, no activity in 7d/);
   assert.match(status, /last transcript/);
 });

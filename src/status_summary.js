@@ -1,7 +1,7 @@
-const DEFAULT_STATUS_BAR_FORMAT = '$(hubot) AG(AG {ag}, Codex {agcx}, CloudCode {agcc}) | Codex:{cx} | CloudCode:{cc}';
+const DEFAULT_STATUS_BAR_FORMAT = '$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}';
 
 function categorizeModels(models) {
-  const cloudCode = [];
+  const gemini = [];
   const codex = [];
   const claude = [];
   const others = [];
@@ -11,7 +11,7 @@ function categorizeModels(models) {
     const modelId = (model.modelId || '').toLowerCase();
 
     if (label.includes('gemini')) {
-      cloudCode.push(model);
+      gemini.push(model);
     } else if (label.includes('gpt') || modelId.includes('gpt') || modelId.includes('openai')) {
       codex.push(model);
     } else if (label.includes('claude')) {
@@ -21,7 +21,7 @@ function categorizeModels(models) {
     }
   }
 
-  return { cloudCode, codex, claude, others };
+  return { gemini, codex, claude, others };
 }
 
 function minimumRemaining(models) {
@@ -37,10 +37,10 @@ function minimumRemaining(models) {
 }
 
 function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
-  const { cloudCode, codex, claude, others } = categorizeModels(models);
+  const { gemini, codex, claude, others } = categorizeModels(models);
 
   return {
-    antigravity: minimumRemaining([...cloudCode, ...others]),
+    antigravity: minimumRemaining([...gemini, ...others]),
     antigravityCodex: minimumRemaining(codex),
     antigravityClaude: minimumRemaining(claude),
     codex: minimumRemaining(codexQuota && codexQuota.models),

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2
+
+- Renamed the status bar labels so `CloudCode` no longer means two different things: the Antigravity group now reads `AG(Gemini, Codex, Claude)` and the standalone CLIs read `Codex` and `Claude Code`.
+- Renamed the tooltip and detail panel group headings to match (`AG · Gemini`, `AG · Codex`, `AG · Claude`, `Codex`, `Claude Code`) and aligned the detail panel order with the tooltip.
+- Spelled out in the settings description and docs that the `AG(...)` group is Antigravity's own quota and that every percentage is remaining, not used.
+- Placeholders (`{ag}`, `{agcx}`, `{agcc}`, `{agcl}`, `{cl}`, `{cx}`, `{cc}`) are unchanged, so an explicitly customized `jagInsights.statusBarFormat` keeps working.
+
 ## 1.3.1
 
 - Distinguished an available but idle Claude Code source as `0(7d)` instead of `N/A`.

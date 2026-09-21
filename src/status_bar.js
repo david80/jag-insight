@@ -150,9 +150,9 @@ class StatusBarManager {
 
     const states = [
       this.formatHealth('AG', snapshot),
-      this.formatHealth('CX', this.codexQuota),
-      this.formatHealth('CC', this.claudeCodeQuota),
-      this.formatHealth('Gemini', this.geminiActivity)
+      this.formatHealth('Codex', this.codexQuota),
+      this.formatHealth('Claude Code', this.claudeCodeQuota),
+      this.formatHealth('Gemini CLI', this.geminiActivity)
     ].filter(Boolean);
     if (states.length > 0) md.appendMarkdown(`$(info) ${states.map(state => escapeMarkdown(state)).join(' · ')}\n\n`);
 
@@ -191,7 +191,7 @@ class StatusBarManager {
     const age = state.fetchedAt ? ` ${formatAge(state.fetchedAt)}` : '';
     let detail = '';
     const activity = data && data.activity;
-    if (label === 'CC' && activity && activity.available !== false
+    if (label === 'Claude Code' && activity && activity.available !== false
         && activity.last7Days && Number(activity.last7Days.totalTokens) === 0) {
       detail = activity.latestTranscriptAt
         ? `, no activity in 7d (last transcript ${formatAge(activity.latestTranscriptAt)})`
@@ -278,13 +278,15 @@ class StatusBarManager {
 
     const categories = categorizeModels(models);
     // Keep the tooltip hierarchy and order aligned with the status bar:
-    // AG(AG, CX, CC) | CX | CC.
-    output += formatGroup('AG · AG (Gemini)', categories.cloudCode);
-    output += formatGroup('AG · CX (Codex)', categories.codex);
-    output += formatGroup('AG · CC (Claude Code)', categories.claude);
+    // AG(Gemini, Codex, Claude) | Codex | Claude Code.
+    // The `AG ·` prefix marks Antigravity's own model quota, so it never
+    // reads as the standalone Codex or Claude Code CLI below it.
+    output += formatGroup('AG · Gemini', categories.gemini);
+    output += formatGroup('AG · Codex', categories.codex);
+    output += formatGroup('AG · Claude', categories.claude);
     output += formatGroup('AG · Others', categories.others);
-    output += formatExternalGroup('CX · Codex', codexQuota);
-    output += formatExternalGroup('CC · Claude Code', claudeCodeQuota);
+    output += formatExternalGroup('Codex', codexQuota);
+    output += formatExternalGroup('Claude Code', claudeCodeQuota);
     output += formatGeminiActivity(geminiActivity);
 
     return output;
@@ -391,13 +393,12 @@ class StatusBarManager {
       : value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value || 0);
 
     const categories = categorizeModels(snapshot.models || []);
-    addGroupToQuickPick('Antigravity Gemini', categories.cloudCode);
-    addGroupToQuickPick('Antigravity Claude', categories.claude);
-    addGroupToQuickPick('Antigravity Codex', categories.codex);
-    addGroupToQuickPick('Antigravity Others', categories.others);
-    addExternalToQuickPick('Claude Code (CC)', this.claudeCodeQuota);
-
-    addExternalToQuickPick('Codex (CX)', this.codexQuota);
+    addGroupToQuickPick('AG · Gemini', categories.gemini);
+    addGroupToQuickPick('AG · Codex', categories.codex);
+    addGroupToQuickPick('AG · Claude', categories.claude);
+    addGroupToQuickPick('AG · Others', categories.others);
+    addExternalToQuickPick('Codex', this.codexQuota);
+    addExternalToQuickPick('Claude Code', this.claudeCodeQuota);
 
     // Gemini CLI activity section
     if (this.geminiActivity && this.geminiActivity.last7Days && this.geminiActivity.last7Days.totalTokens > 0) {
