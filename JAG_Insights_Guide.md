@@ -46,7 +46,7 @@ After successful installation, the `🤖 JAG Insights` item will reside permanen
 Hover over the `🤖 JAG Insights` status bar item to reveal a rich Markdown popup:
 * **User account info** and **total prompt credit usage**
 * **Per-service AI model usage gauge bars** with reset time info (grouped by Cloud Code/Google Gemini, OpenAI Codex, and Anthropic Claude)
-* When remaining quota drops to 40% or below, a red warning indicator activates automatically.
+* When usage reaches 60%, a warning indicator activates automatically; at 99.9% it turns into an error indicator.
 * Click the `[ REFRESH ]` and `[ CONFIG ]` links at the bottom of the tooltip for instant manual refresh or settings navigation.
 
 ### 3. Quick Action Menu (Left Click)
@@ -68,7 +68,7 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.showQuotaOnStatusBar`**: Show integrated quota percentages in the status bar text (default: `true`)
 * **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   * The `AG(...)` group is Antigravity IDE's own model quota; the segments after it are the standalone CLIs.
-  * Every percentage is remaining, not used. Claude Code's `/usage` panel reports usage, so 93% there appears as 7% here.
+  * Every percentage is usage, so the numbers match Claude Code's `/usage` panel. A provider with several windows is represented by its most consumed window.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: Local Codex CLI (percentage)
   * `{cc}`: Local Claude Code CLI quota percentage. If quota data is unavailable, shows cumulative 7-day token usage instead (for example, `1.5M(7d)` or `0(7d)` when discovery succeeded without recent activity)
@@ -126,7 +126,7 @@ code --install-extension jag-insight-1.3.1.vsix
 상태 표시줄의 `🤖 JAG Insights` 영역에 마우스를 가져다 대면(Hover) 예쁜 마크다운 팝업창이 나타납니다.
 * **사용자 계정 정보** 및 **전체 프롬프트 크레딧 사용량**
 * **서비스별 AI 모델들의 사용량 게이지 바** 및 초기화 시간 정보 제공 (Cloud Code/Google Gemini, OpenAI Codex, Anthropic Claude 서비스별로 그룹화되어 개별 표기됨)
-* 잔량이 40% 이하로 떨어지면 자동으로 빨간색(경고) 인디케이터가 활성화됩니다.
+* 사용량이 60%에 도달하면 주황색(경고), 99.9%에 도달하면 빨간색(소진) 인디케이터가 자동으로 활성화됩니다.
 * 툴팁 하단에 제공되는 `[ REFRESH ]`와 `[ CONFIG ]` 링크를 클릭해 즉각적으로 수동 새로고침 및 환경설정 이동이 가능합니다.
 
 ### 3. 간편 액션 메뉴 (마우스 좌클릭)
@@ -148,7 +148,7 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.showQuotaOnStatusBar`**: 상태 표시줄 텍스트에 통합 쿼터 퍼센트를 노출할지 여부 (기본값: `true`)
 * **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   * 괄호 안의 `AG(...)`는 Antigravity IDE가 제공하는 모델 쿼터이고, 그 뒤는 독립 실행되는 CLI의 자체 쿼터입니다.
-  * 모든 퍼센트는 남은 양입니다. Claude Code `/usage` 패널은 사용량을 보여주므로, 패널의 93%가 여기서는 7%로 표시됩니다.
+  * 모든 퍼센트는 사용량이므로 Claude Code `/usage` 패널과 숫자가 일치합니다. 창이 여러 개인 공급자는 가장 많이 쓴 창을 대표값으로 쓵니다.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: 로컬 Codex CLI (퍼센트 단위)
   * `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 대신 표시하며, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)

@@ -97,18 +97,19 @@ test('applies warning and error colors independently to AG, CX, and CC items', (
     },
     {
       source: 'claude-usage-cache',
-      models: [{ label: '7-Day Limit', remainingPercentage: 80, resetsAt: null }]
+      models: [{ label: '7-Day Limit', usedPercentage: 20, resetsAt: null }]
     },
     {
       source: 'codex-sessions',
-      models: [{ label: 'Weekly Limit', remainingPercentage: 0, resetsAt: null }]
+      models: [{ label: 'Weekly Limit', usedPercentage: 100, resetsAt: null }]
     },
     null
   );
 
-  assert.equal(manager.items.antigravity.text, '$(hubot) AG(Gemini 20%, Codex N/A, Claude N/A)');
-  assert.equal(manager.items.codex.text, 'Codex:0%');
-  assert.equal(manager.items.claudeCode.text, 'Claude Code:80%');
+  // The Antigravity model reports 20% remaining, which is 80% used.
+  assert.equal(manager.items.antigravity.text, '$(hubot) AG(Gemini 80%, Codex N/A, Claude N/A)');
+  assert.equal(manager.items.codex.text, 'Codex:100%');
+  assert.equal(manager.items.claudeCode.text, 'Claude Code:20%');
   assert.equal(manager.items.antigravity.backgroundColor.id, 'statusBarItem.warningBackground');
   assert.equal(manager.items.codex.backgroundColor.id, 'statusBarItem.errorBackground');
   assert.equal(manager.items.claudeCode.backgroundColor, undefined);

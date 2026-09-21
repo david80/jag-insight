@@ -2,7 +2,7 @@
   "name": "jag-insight",
   "displayName": "JAG Insights",
   "description": "AI quota and usage monitor for Antigravity IDE and Visual Studio Code",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "publisher": "davidlee",
   "license": "MIT",
   "repository": {
@@ -79,7 +79,7 @@
         "jagInsights.statusBarFormat": {
           "type": "string",
           "default": "$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}",
-          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcc}/{agcl}/{cl} (Antigravity Claude), {cx} (Codex CLI), {cc} (Claude Code CLI). The AG(...) group is Antigravity's own model quota; the segments after it are the standalone CLIs."
+          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcc}/{agcl}/{cl} (Antigravity Claude), {cx} (Codex CLI), {cc} (Claude Code CLI). The AG(...) group is Antigravity's own model quota; the segments after it are the standalone CLIs. Every percentage is usage, matching Claude Code's /usage panel."
         },
         "jagInsights.claudeCodeUsagePath": {
           "type": "string",

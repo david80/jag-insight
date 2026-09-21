@@ -24,27 +24,46 @@ function categorizeModels(models) {
   return { gemini, codex, claude, others };
 }
 
-function minimumRemaining(models) {
-  let minimum = null;
+/**
+ * Every percentage JAG Insights displays is consumption, so it reads the same
+ * way as Claude Code's `/usage` panel and the Codex rate-limit output. Providers
+ * that only report a remaining share are converted here rather than at each
+ * call site.
+ */
+function usedPercentageOf(model) {
+  if (!model) return null;
+  const used = Number(model.usedPercentage);
+  if (Number.isFinite(used)) return used;
+  const remaining = Number(model.remainingPercentage);
+  return Number.isFinite(remaining) ? 100 - remaining : null;
+}
+
+/**
+ * A provider is summarized by its most consumed window, which is the one that
+ * will exhaust first.
+ */
+function maximumUsed(models) {
+  let maximum = null;
 
   for (const model of models || []) {
-    const percentage = Number(model.remainingPercentage);
-    if (model.isNA || model.isOutdated || !Number.isFinite(percentage)) continue;
-    minimum = minimum === null ? percentage : Math.min(minimum, percentage);
+    if (model.isNA || model.isOutdated) continue;
+    const used = usedPercentageOf(model);
+    if (used === null) continue;
+    maximum = maximum === null ? used : Math.max(maximum, used);
   }
 
-  return minimum;
+  return maximum;
 }
 
 function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
   const { gemini, codex, claude, others } = categorizeModels(models);
 
   return {
-    antigravity: minimumRemaining([...gemini, ...others]),
-    antigravityCodex: minimumRemaining(codex),
-    antigravityClaude: minimumRemaining(claude),
-    codex: minimumRemaining(codexQuota && codexQuota.models),
-    claudeCode: minimumRemaining(claudeCodeQuota && claudeCodeQuota.models),
+    antigravity: maximumUsed([...gemini, ...others]),
+    antigravityCodex: maximumUsed(codex),
+    antigravityClaude: maximumUsed(claude),
+    codex: maximumUsed(codexQuota && codexQuota.models),
+    claudeCode: maximumUsed(claudeCodeQuota && claudeCodeQuota.models),
     claudeCodeActivity: claudeCodeQuota && claudeCodeQuota.activity,
     geminiActivity: geminiActivity || null
   };
@@ -134,6 +153,7 @@ function formatStatusBarSegments(template, summary) {
 module.exports = {
   DEFAULT_STATUS_BAR_FORMAT,
   categorizeModels,
+  usedPercentageOf,
   summarizeQuotas,
   formatStatusBarText,
   formatStatusBarSegments

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.3
+
+- Switched every displayed percentage from remaining quota to consumption, so the numbers match Claude Code's `/usage` panel and the Codex rate-limit output.
+- Each provider is now summarized by its most consumed window, the one that will exhaust first.
+- Gauge bars now fill with consumption, and the detail panel reads `93% used` instead of `7% remaining`.
+- Moved the status bar warning background to 60% used and the error background to 99.9% used, preserving the previous trigger points.
+- Added a single `usedPercentageOf` converter so providers that only report a remaining share are normalized in one place.
+
 ## 1.3.2
 
 - Renamed the status bar labels so `CloudCode` no longer means two different things: the Antigravity group now reads `AG(Gemini, Codex, Claude)` and the standalone CLIs read `Codex` and `Claude Code`.

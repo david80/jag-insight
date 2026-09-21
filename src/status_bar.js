@@ -3,8 +3,13 @@ const {
   DEFAULT_STATUS_BAR_FORMAT,
   summarizeQuotas,
   formatStatusBarSegments,
-  categorizeModels
+  categorizeModels,
+  usedPercentageOf
 } = require('./status_summary');
+
+// Thresholds are expressed as consumption, matching what the UI shows.
+const WARNING_USED_PERCENTAGE = 60;
+const EXHAUSTED_USED_PERCENTAGE = 99.9;
 const { estimatePeriodCost, formatCost } = require('./cost_estimator');
 const { formatAge } = require('./provider_state');
 
@@ -88,10 +93,10 @@ class StatusBarManager {
     }
 
     const text = formatStatusBarSegments(config.statusBarFormat || DEFAULT_STATUS_BAR_FORMAT, summary);
-    const agMinimums = [summary.antigravity, summary.antigravityCodex, summary.antigravityClaude]
+    const agMaximums = [summary.antigravity, summary.antigravityCodex, summary.antigravityClaude]
       .filter(value => value !== null);
     const percentages = {
-      antigravity: agMinimums.length > 0 ? Math.min(...agMinimums) : null,
+      antigravity: agMaximums.length > 0 ? Math.max(...agMaximums) : null,
       codex: summary.codex,
       claudeCode: summary.claudeCode
     };
@@ -115,12 +120,12 @@ class StatusBarManager {
     for (const item of Object.values(this.items)) item.hide();
   }
 
-  getStatusBackground(remainingPercentage) {
-    if (remainingPercentage === null || !Number.isFinite(remainingPercentage)) return undefined;
-    if (remainingPercentage <= 0.1) {
+  getStatusBackground(usedPercentage) {
+    if (usedPercentage === null || !Number.isFinite(usedPercentage)) return undefined;
+    if (usedPercentage >= EXHAUSTED_USED_PERCENTAGE) {
       return new vscode.ThemeColor('statusBarItem.errorBackground');
     }
-    if (remainingPercentage <= 40) {
+    if (usedPercentage >= WARNING_USED_PERCENTAGE) {
       return new vscode.ThemeColor('statusBarItem.warningBackground');
     }
     return undefined;
@@ -207,8 +212,8 @@ class StatusBarManager {
       if (!groupModels || groupModels.length === 0) return '';
       let str = ` -- [ ${groupName} ] -----------------\n`;
       for (const m of groupModels) {
-        const pctValue = m.remainingPercentage !== undefined ? m.remainingPercentage : 0;
-        const indicator = pctValue > 40 ? '+' : '-';
+        const pctValue = usedPercentageOf(m) ?? 100;
+        const indicator = pctValue < WARNING_USED_PERCENTAGE ? '+' : '-';
         const bar = this.getProgressBar(pctValue);
         const displayValue = `${pctValue.toFixed(0)}%`;
         const paddedLabel = safeDisplayText(m.label, 25).padEnd(25);
@@ -225,9 +230,9 @@ class StatusBarManager {
         : '';
       let str = ` -- [ ${groupName}${confidenceLabel}${healthLabel} ] -----------------\n`;
       for (const m of quota.models) {
-        const ccPct = m.remainingPercentage;
+        const ccPct = usedPercentageOf(m) ?? 100;
         const ccBar = this.getProgressBar(ccPct);
-        const indicator = ccPct > 40 ? '+' : '-';
+        const indicator = ccPct < WARNING_USED_PERCENTAGE ? '+' : '-';
         const displayValue = `${ccPct.toFixed(0)}%`;
         const resetsAt = m.resetsAt;
         let resetFormatted = m.isOutdated ? 'Outdated' : 'Ready';
@@ -337,11 +342,11 @@ class StatusBarManager {
       });
 
       for (const model of groupModels) {
-        const pct = `${model.remainingPercentage !== undefined ? model.remainingPercentage.toFixed(0) : '0'}%`;
-        const icon = (model.remainingPercentage !== undefined && model.remainingPercentage > 40) ? '$(check)' : '$(warning)';
+        const used = usedPercentageOf(model) ?? 100;
+        const icon = used < WARNING_USED_PERCENTAGE ? '$(check)' : '$(warning)';
         items.push({
           label: `${icon} ${safeDisplayText(model.label)}`,
-          description: `${pct} remaining`,
+          description: `${used.toFixed(0)}% used`,
           detail: `Resets in: ${model.timeUntilResetFormatted}`
         });
       }
@@ -356,8 +361,8 @@ class StatusBarManager {
       });
 
       for (const m of quota.models) {
-        const ccPct = m.remainingPercentage;
-        const icon = ccPct > 40 ? '$(check)' : '$(warning)';
+        const ccPct = usedPercentageOf(m) ?? 100;
+        const icon = ccPct < WARNING_USED_PERCENTAGE ? '$(check)' : '$(warning)';
         const resetsAt = m.resetsAt;
         let resetFormatted = m.isOutdated ? 'Outdated' : 'Ready';
         if (resetsAt) {
@@ -382,7 +387,7 @@ class StatusBarManager {
         }
         items.push({
           label: `${icon} ${safeDisplayText(m.label)}`,
-          description: `${ccPct.toFixed(0)}% remaining`,
+          description: `${ccPct.toFixed(0)}% used`,
           detail: `Resets in: ${resetFormatted}`
         });
       }
