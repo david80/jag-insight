@@ -8,8 +8,8 @@ const {
   formatStatusBarSegments
 } = require('../src/status_summary');
 
-// Antigravity reports a remaining share, Codex and Claude Code report usage.
-// Both must surface as usage so the bar matches `/usage` and the Codex output.
+// Each segment matches the number its own tool shows: Antigravity counts down,
+// while `/usage` and the Codex rate-limit output count up.
 test('separates Antigravity provider quotas from external Codex and Claude Code', () => {
   const models = [
     { label: 'Gemini 3.5 Flash', modelId: 'gemini', remainingPercentage: 48 },
@@ -22,7 +22,7 @@ test('separates Antigravity provider quotas from external Codex and Claude Code'
   const summary = summarizeQuotas(models, codexQuota, claudeCodeQuota);
   const text = formatStatusBarText(DEFAULT_STATUS_BAR_FORMAT, summary);
 
-  assert.equal(text, '$(hubot) AG(Gemini 52%, Codex 28%, Claude 17%) | Codex:9% | Claude Code:36%');
+  assert.equal(text, '$(hubot) AG(Gemini 48%, Codex 72%, Claude 83%) | Codex:9% | Claude Code:36%');
 });
 
 test('summarizes a provider by its most consumed window', () => {
@@ -35,6 +35,18 @@ test('summarizes a provider by its most consumed window', () => {
 
   assert.equal(summary.claudeCode, 93);
   assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:93%');
+});
+
+// The most consumed window is also the one with the least left, so Antigravity
+// picks the same window and only the printed direction differs.
+test('reports the same worst window as remaining quota for Antigravity', () => {
+  const summary = summarizeQuotas([
+    { label: 'Gemini Flash', remainingPercentage: 80 },
+    { label: 'Gemini Pro', remainingPercentage: 12 }
+  ], null, null);
+
+  assert.equal(summary.antigravity, 88);
+  assert.equal(formatStatusBarText('AG:{ag}', summary), 'AG:12%');
 });
 
 test('ignores N/A and outdated windows when summarizing usage', () => {
@@ -54,8 +66,8 @@ test('keeps the legacy local Claude placeholder working and supports agcc', () =
     { label: 'Claude Opus', remainingPercentage: 55 }
   ], null, null);
 
-  assert.equal(formatStatusBarText('CL: {cl}', summary), 'CL: 45%');
-  assert.equal(formatStatusBarText('AGCC: {agcc}', summary), 'AGCC: 45%');
+  assert.equal(formatStatusBarText('CL: {cl}', summary), 'CL: 55%');
+  assert.equal(formatStatusBarText('AGCC: {agcc}', summary), 'AGCC: 55%');
 });
 
 test('falls back to Claude Code token usage rendering when rate limit percentage is missing', () => {
@@ -112,7 +124,7 @@ test('formats independently colorable status bar segments by provider', () => {
   );
 
   assert.deepEqual(formatStatusBarSegments(DEFAULT_STATUS_BAR_FORMAT, summary), {
-    antigravity: '$(hubot) AG(Gemini 52%, Codex 28%, Claude 17%)',
+    antigravity: '$(hubot) AG(Gemini 48%, Codex 72%, Claude 83%)',
     codex: 'Codex:9%',
     claudeCode: 'Claude Code:36%'
   });

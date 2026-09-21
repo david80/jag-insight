@@ -19,8 +19,8 @@ Claude Code, Codex, Gemini CLI 사용량은 두 IDE에서 동일하게 동작합
 ### 🌟 주요 기능
 
 1. **실시간 상태 표시줄 연동**
-   - IDE 오른쪽 하단 상태 표시줄에 `🤖 AG(Gemini 29%, Codex 0%, Claude 0%) | Codex:9% | Claude Code:93%` 형태로 노출됩니다.
-   - 모든 퍼센트는 **사용량**입니다. Claude Code `/usage` 패널과 같은 숫자가 표시되며, 숫자가 커질수록 한도에 가까워집니다.
+   - IDE 오른쪽 하단 상태 표시줄에 `🤖 AG(Gemini 27%, Codex 69%, Claude 69%) | Codex:9% | Claude Code:93%` 형태로 노출됩니다.
+   - **각 구간은 해당 도구가 자체 UI에 보여주는 방향을 따릅니다.** `AG(...)`는 Antigravity UI와 같은 **잔여량**, `Codex:`와 `Claude Code:`는 `/usage` 패널과 같은 **사용량**입니다. 툴팁과 그룹 머리글에 방향이 명시됩니다.
    - 괄호 안의 `AG(...)`는 **Antigravity IDE가 제공하는 모델 쿼터**이고, 그 뒤의 `Codex:` / `Claude Code:`는 **독립 실행되는 CLI의 자체 쿼터**입니다. 서로 다른 값입니다.
 2. **서비스별 그룹화된 마크다운 툴팁 (마우스 호버)**
    - 상태 표시줄에 마우스를 올리면 예쁜 마크다운 형식의 툴팁이 팝업됩니다.
@@ -49,8 +49,9 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: 로컬 Codex CLI (퍼센트 단위)
   - `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 `1.5M(7d)`처럼 표시하고, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
-  - 모든 퍼센트는 **사용량**이므로 Claude Code `/usage` 패널과 숫자가 일치합니다. 개수가 여러 개인 공급자는 **가장 많이 쓴 창**(가장 먼저 소진될 창)을 대표값으로 씨습니다.
-  - 사용량이 60% 이상이면 주황색, 99.9% 이상이면 빨간색 배경이 해당 항목에만 적용됩니다.
+  - `{ag}`·`{agcx}`·`{agcc}`·`{agcl}`·`{cl}`은 **잔여량**, `{cx}`·`{cc}`는 **사용량**입니다.
+  - 창이 여러 개인 공급자는 **가장 먼저 소진될 창**을 대표값으로 씨습니다. 표시 방향과 무관하게 같은 창이 선택됩니다.
+  - 배경색은 방향과 무관하게 사용량 기준입니다. 60% 이상 주황색, 99.9% 이상 빨간색이 해당 항목에만 적용됩니다.
 - **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions`를 자동 탐지합니다.
 - **`jagInsights.codexUseAppServer`**: 공식 Codex app-server의 `account/rateLimits/read`를 선택적으로 사용합니다 (기본값: `false`). 실패하면 로컬 세션으로 돌아갑니다.
 - **`jagInsights.codexAppServerCommand`**: 선택적 app-server에 사용할 Codex 실행 파일 (기본값: `codex`).
@@ -97,8 +98,8 @@ Starting with version 1.3, provider freshness is visible in the status bar and t
 ### 🌟 Key Features
 
 1. **Real-time Status Bar Integration**
-   - Displays as `🤖 AG(Gemini 29%, Codex 0%, Claude 0%) | Codex:9% | Claude Code:93%` in the bottom-right status bar of the IDE.
-   - Every percentage is **usage**, so it matches Claude Code's `/usage` panel: a larger number means closer to the limit.
+   - Displays as `🤖 AG(Gemini 27%, Codex 69%, Claude 69%) | Codex:9% | Claude Code:93%` in the bottom-right status bar of the IDE.
+   - **Each segment follows the direction its own tool uses.** `AG(...)` is **remaining** quota, as the Antigravity UI shows it, while `Codex:` and `Claude Code:` are **usage**, as `/usage` shows it. The tooltip and the group headings state the direction.
    - The `AG(...)` group is **Antigravity IDE's own model quota**; the `Codex:` and `Claude Code:` segments after it are the **standalone CLIs' own quotas**. They are different numbers.
    - Separate status bar items allow each provider to independently show its normal, warning, or exhausted background color.
 2. **Markdown Tooltip Grouped by Provider (Mouse Hover)**
@@ -131,8 +132,9 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: Local Codex CLI (percentage)
   - `{cc}`: Local Claude Code CLI (displays quota percentage, falls back to a 7-day token count such as `1.5M(7d)`, or shows `0(7d)` when discovery succeeds without recent activity)
-  - Every percentage is **usage**, so the numbers match Claude Code's `/usage` panel. A provider with several windows is represented by its **most consumed window**, the one that will exhaust first.
-  - A warning background appears at 60% used and an error background at 99.9% used, applied only to the affected item.
+  - `{ag}`, `{agcx}`, `{agcc}`, `{agcl}` and `{cl}` are **remaining**; `{cx}` and `{cc}` are **usage**.
+  - A provider with several windows is represented by the window that will exhaust first. The same window is picked in either direction.
+  - Background colors are driven by usage regardless of direction: a warning at 60% used and an error at 99.9% used, applied only to the affected item.
 - **`jagInsights.codexSessionPath`**: Optional Codex session directory. When empty, `$CODEX_HOME/sessions` or `~/.codex/sessions` is detected automatically.
 - **`jagInsights.codexUseAppServer`**: Optionally query the documented Codex app-server `account/rateLimits/read` method. (Default: `false`; local sessions remain the fallback.)
 - **`jagInsights.codexAppServerCommand`**: Codex executable for the optional app-server integration. (Default: `codex`.)

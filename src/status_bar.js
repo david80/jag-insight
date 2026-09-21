@@ -4,12 +4,15 @@ const {
   summarizeQuotas,
   formatStatusBarSegments,
   categorizeModels,
-  usedPercentageOf
+  usedPercentageOf,
+  remainingPercentageOf
 } = require('./status_summary');
 
-// Thresholds are expressed as consumption, matching what the UI shows.
+// Thresholds are always compared as consumption, whichever direction a group
+// is displayed in, so both halves of the status bar warn at the same point.
 const WARNING_USED_PERCENTAGE = 60;
 const EXHAUSTED_USED_PERCENTAGE = 99.9;
+const DIRECTION_LEGEND = 'AG shows remaining quota · Codex and Claude Code show usage';
 const { estimatePeriodCost, formatCost } = require('./cost_estimator');
 const { formatAge } = require('./provider_state');
 
@@ -161,6 +164,8 @@ class StatusBarManager {
     ].filter(Boolean);
     if (states.length > 0) md.appendMarkdown(`$(info) ${states.map(state => escapeMarkdown(state)).join(' · ')}\n\n`);
 
+    md.appendMarkdown(`$(arrow-swap) ${escapeMarkdown(DIRECTION_LEGEND)}\n\n`);
+
     md.appendCodeblock(this.buildQuotaTable(snapshot.models, this.claudeCodeQuota, this.codexQuota, this.geminiActivity), 'diff');
     md.appendMarkdown('\n\n');
 
@@ -210,12 +215,12 @@ class StatusBarManager {
 
     const formatGroup = (groupName, groupModels) => {
       if (!groupModels || groupModels.length === 0) return '';
-      let str = ` -- [ ${groupName} ] -----------------\n`;
+      let str = ` -- [ ${groupName} · remaining ] -----------------\n`;
       for (const m of groupModels) {
-        const pctValue = usedPercentageOf(m) ?? 100;
-        const indicator = pctValue < WARNING_USED_PERCENTAGE ? '+' : '-';
-        const bar = this.getProgressBar(pctValue);
-        const displayValue = `${pctValue.toFixed(0)}%`;
+        const remaining = remainingPercentageOf(m) ?? 0;
+        const indicator = remaining > 100 - WARNING_USED_PERCENTAGE ? '+' : '-';
+        const bar = this.getProgressBar(remaining);
+        const displayValue = `${remaining.toFixed(0)}%`;
         const paddedLabel = safeDisplayText(m.label, 25).padEnd(25);
         str += `${indicator} ${paddedLabel} | ${bar} | ${displayValue.padEnd(4)} | ${m.timeUntilResetFormatted}\n`;
       }
@@ -228,7 +233,7 @@ class StatusBarManager {
       const healthLabel = quota.health && quota.health.status !== 'fresh'
         ? ` [${safeDisplayText(quota.health.status, 12)}]`
         : '';
-      let str = ` -- [ ${groupName}${confidenceLabel}${healthLabel} ] -----------------\n`;
+      let str = ` -- [ ${groupName} · used${confidenceLabel}${healthLabel} ] -----------------\n`;
       for (const m of quota.models) {
         const ccPct = usedPercentageOf(m) ?? 100;
         const ccBar = this.getProgressBar(ccPct);
@@ -342,11 +347,11 @@ class StatusBarManager {
       });
 
       for (const model of groupModels) {
-        const used = usedPercentageOf(model) ?? 100;
-        const icon = used < WARNING_USED_PERCENTAGE ? '$(check)' : '$(warning)';
+        const remaining = remainingPercentageOf(model) ?? 0;
+        const icon = remaining > 100 - WARNING_USED_PERCENTAGE ? '$(check)' : '$(warning)';
         items.push({
           label: `${icon} ${safeDisplayText(model.label)}`,
-          description: `${used.toFixed(0)}% used`,
+          description: `${remaining.toFixed(0)}% remaining`,
           detail: `Resets in: ${model.timeUntilResetFormatted}`
         });
       }

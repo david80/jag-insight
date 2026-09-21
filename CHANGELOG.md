@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.4
+
+- Restored remaining quota for the Antigravity segment, so each half of the status bar matches the direction its own tool uses: `AG(...)` counts down like the Antigravity UI, while `Codex:` and `Claude Code:` count up like `/usage`.
+- Added a direction legend to the tooltip and a `· remaining` / `· used` suffix to every group heading, so the two halves never read as the same measure.
+- Kept warning and error backgrounds driven by usage in both directions, so both halves still warn at the same point.
+
 ## 1.3.3
 
 - Switched every displayed percentage from remaining quota to consumption, so the numbers match Claude Code's `/usage` panel and the Codex rate-limit output.

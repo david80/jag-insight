@@ -25,10 +25,14 @@ function categorizeModels(models) {
 }
 
 /**
- * Every percentage JAG Insights displays is consumption, so it reads the same
- * way as Claude Code's `/usage` panel and the Codex rate-limit output. Providers
- * that only report a remaining share are converted here rather than at each
- * call site.
+ * Quotas are compared internally as consumption, so a single convention drives
+ * summarizing, coloring and thresholds. Providers that only report a remaining
+ * share are converted here rather than at each call site.
+ *
+ * Display direction is per provider, so each segment matches the number its own
+ * tool shows: Antigravity reports remaining quota in its own UI, while Claude
+ * Code's `/usage` panel and the Codex rate-limit output report consumption. The
+ * tooltip states the direction so the two never read as the same measure.
  */
 function usedPercentageOf(model) {
   if (!model) return null;
@@ -38,9 +42,15 @@ function usedPercentageOf(model) {
   return Number.isFinite(remaining) ? 100 - remaining : null;
 }
 
+function remainingPercentageOf(model) {
+  const used = usedPercentageOf(model);
+  return used === null ? null : 100 - used;
+}
+
 /**
  * A provider is summarized by its most consumed window, which is the one that
- * will exhaust first.
+ * will exhaust first. This holds whichever direction the value is displayed in,
+ * since the most consumed window is also the one with the least left.
  */
 function maximumUsed(models) {
   let maximum = null;
@@ -73,6 +83,11 @@ function formatPercentage(value) {
   return value === null ? 'N/A' : `${value.toFixed(0)}%`;
 }
 
+// Antigravity's own UI counts down, so its placeholders render remaining quota.
+function formatRemaining(usedValue) {
+  return usedValue === null ? 'N/A' : `${(100 - usedValue).toFixed(0)}%`;
+}
+
 function formatClaudeCodeValue(claudeCode, activity) {
   if (claudeCode !== null) {
     return `${claudeCode.toFixed(0)}%`;
@@ -90,10 +105,12 @@ function formatClaudeCodeValue(claudeCode, activity) {
 
 function formatStatusBarText(template, summary) {
   const values = {
-    ag: formatPercentage(summary.antigravity),
-    agcx: formatPercentage(summary.antigravityCodex),
-    agcl: formatPercentage(summary.antigravityClaude),
-    agcc: formatPercentage(summary.antigravityClaude),
+    // Antigravity placeholders: remaining quota, matching the Antigravity UI.
+    ag: formatRemaining(summary.antigravity),
+    agcx: formatRemaining(summary.antigravityCodex),
+    agcl: formatRemaining(summary.antigravityClaude),
+    agcc: formatRemaining(summary.antigravityClaude),
+    // CLI placeholders: consumption, matching `/usage` and the Codex output.
     cx: formatPercentage(summary.codex),
     cc: formatClaudeCodeValue(summary.claudeCode, summary.claudeCodeActivity),
     // Gemini CLI activity — shows 7d token count if available
@@ -106,7 +123,7 @@ function formatStatusBarText(template, summary) {
       return `${t}(7d)`;
     })(),
     // Backward-compatible alias for the previous local Claude placeholder.
-    cl: formatPercentage(summary.antigravityClaude)
+    cl: formatRemaining(summary.antigravityClaude)
   };
 
   let text = template || DEFAULT_STATUS_BAR_FORMAT;
@@ -154,6 +171,7 @@ module.exports = {
   DEFAULT_STATUS_BAR_FORMAT,
   categorizeModels,
   usedPercentageOf,
+  remainingPercentageOf,
   summarizeQuotas,
   formatStatusBarText,
   formatStatusBarSegments

@@ -60,11 +60,11 @@ test('tooltip quota groups follow the AG(Gemini, Codex, Claude) | Codex | Claude
 
   const tooltip = manager.buildQuotaTable(models, claudeCodeQuota, codexQuota, null);
   const headings = [
-    'AG · Gemini',
-    'AG · Codex',
-    'AG · Claude',
-    'Codex [sessions]',
-    'Claude Code [official]'
+    'AG · Gemini · remaining',
+    'AG · Codex · remaining',
+    'AG · Claude · remaining',
+    'Codex · used [sessions]',
+    'Claude Code · used [official]'
   ];
 
   for (const heading of headings) {
@@ -106,8 +106,9 @@ test('applies warning and error colors independently to AG, CX, and CC items', (
     null
   );
 
-  // The Antigravity model reports 20% remaining, which is 80% used.
-  assert.equal(manager.items.antigravity.text, '$(hubot) AG(Gemini 80%, Codex N/A, Claude N/A)');
+  // Antigravity prints the remaining share it reports, while the CLI segments
+  // print consumption. The warning colors below are driven by usage either way.
+  assert.equal(manager.items.antigravity.text, '$(hubot) AG(Gemini 20%, Codex N/A, Claude N/A)');
   assert.equal(manager.items.codex.text, 'Codex:100%');
   assert.equal(manager.items.claudeCode.text, 'Claude Code:20%');
   assert.equal(manager.items.antigravity.backgroundColor.id, 'statusBarItem.warningBackground');
@@ -144,6 +145,19 @@ test('limits trusted tooltip commands and escapes external identity text', () =>
   ]);
   assert.equal(tooltip.supportHtml, false);
   assert.match(tooltip.markdown, /person\\` \\\[run\\\]\\\(command:evil\\\)/);
+});
+
+// The status bar prints Antigravity and the CLIs in opposite directions, so the
+// tooltip must always say which is which.
+test('states the display direction of each half in the tooltip', () => {
+  const manager = new StatusBarManager();
+  const tooltip = manager.buildTooltip({
+    timestamp: '2026-09-21T00:00:00.000Z',
+    models: [{ label: 'Gemini Flash', remainingPercentage: 20, timeUntilResetFormatted: '1h' }]
+  }, { showUserEmail: false, showPromptCredits: false });
+
+  assert.match(tooltip.markdown, /AG shows remaining quota/);
+  assert.match(tooltip.markdown, /Codex and Claude Code show usage/);
 });
 
 test('explains an idle Claude Code source instead of reporting it as unavailable', () => {
