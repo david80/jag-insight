@@ -119,6 +119,28 @@ test('applies warning and error colors independently to AG, CX, and CC items', (
   assert.equal(manager.items.claudeCode.visible, true);
 });
 
+test('marks a stale Claude Code percentage without applying a live warning color', () => {
+  const manager = new StatusBarManager();
+  manager.update(
+    { timestamp: new Date().toISOString(), models: [] },
+    { enabled: true, showQuotaOnStatusBar: true, showUserEmail: false, showPromptCredits: false },
+    {
+      source: 'claude-local-cache',
+      health: { status: 'stale', fetchedAt: '2026-09-22T00:16:06.469Z' },
+      models: [
+        { label: '5-Hour Limit', usedPercentage: 1 },
+        { label: 'Weekly Limit', usedPercentage: 68 }
+      ],
+      activity: { available: true, last7Days: { totalTokens: 22700000 } }
+    },
+    null,
+    null
+  );
+
+  assert.equal(manager.items.claudeCode.text, 'Claude Code:1% $(history)');
+  assert.equal(manager.items.claudeCode.backgroundColor, undefined);
+});
+
 test('hides every provider item when the extension is disabled', () => {
   const manager = new StatusBarManager();
   for (const item of Object.values(manager.items)) item.show();

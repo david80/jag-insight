@@ -25,16 +25,16 @@ test('separates Antigravity provider quotas from external Codex and Claude Code'
   assert.equal(text, '$(hubot) AG(Gemini 48%, Codex 72%, Claude 83%) | Codex:9% | Claude Code:36%');
 });
 
-test('summarizes a provider by its most consumed window', () => {
+test('shows the Claude Code five-hour window ahead of weekly usage', () => {
   const summary = summarizeQuotas([], null, {
     models: [
-      { label: '5-Hour Limit', usedPercentage: 93, remainingPercentage: 7 },
-      { label: 'Weekly Limit', usedPercentage: 36, remainingPercentage: 64 }
+      { label: '5-Hour Limit', usedPercentage: 1, remainingPercentage: 99 },
+      { label: 'Weekly Limit', usedPercentage: 38, remainingPercentage: 62 }
     ]
   });
 
-  assert.equal(summary.claudeCode, 93);
-  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:93%');
+  assert.equal(summary.claudeCode, 1);
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:1%');
 });
 
 // The most consumed window is also the one with the least left, so Antigravity
@@ -74,6 +74,40 @@ test('does not display stale provider percentages as current usage', () => {
 
   assert.equal(formatStatusBarText('Codex:{cx} | Claude Code:{cc}', summary),
     'Codex:N/A | Claude Code:1%');
+});
+
+test('shows a stale Claude Code cache percentage ahead of transcript tokens', () => {
+  const summary = summarizeQuotas([], null, {
+    health: { status: 'stale' },
+    models: [
+      { label: '5-Hour Limit', usedPercentage: 1 },
+      { label: 'Weekly Limit', usedPercentage: 38 }
+    ],
+    activity: { available: true, last7Days: { totalTokens: 22700000 } }
+  });
+
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:1%');
+});
+
+test('uses another valid Claude Code window when five-hour usage is unavailable', () => {
+  const summary = summarizeQuotas([], null, {
+    models: [
+      { label: '5-Hour Limit', usedPercentage: 1, resetsAt: '2020-01-01T00:00:00.000Z' },
+      { label: 'Weekly Limit', usedPercentage: 38 }
+    ]
+  });
+
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:38%');
+});
+
+test('falls back to transcript tokens after the cached Claude Code window expires', () => {
+  const summary = summarizeQuotas([], null, {
+    health: { status: 'stale' },
+    models: [{ label: 'Weekly Limit', usedPercentage: 38, resetsAt: '2020-01-01T00:00:00.000Z' }],
+    activity: { available: true, last7Days: { totalTokens: 22700000 } }
+  });
+
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:22.7M(7d)');
 });
 
 test('keeps the legacy local Claude placeholder working and supports agcc', () => {

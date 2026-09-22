@@ -48,9 +48,9 @@ IDE의 `Settings` (설정창, `Cmd+,` 혹은 `Ctrl+,`)에서 `jagInsights`를 �
 - **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: 로컬 Codex CLI (퍼센트 단위)
-  - `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 `1.5M(7d)`처럼 표시하고, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
+  - `{cc}`: 로컬 Claude Code CLI의 5시간 사용률 우선 (값이 없으면 다른 유효한 한도 사용). 캐시가 오래됐으면 `↶` 표시를 붙이고, 유효한 쿼터 정보가 없으면 지난 7일 토큰 수를 표시합니다.
   - `{ag}`·`{agcx}`·`{agcc}`·`{agcl}`·`{cl}`은 **잔여량**, `{cx}`·`{cc}`는 **사용량**입니다.
-  - 창이 여러 개인 공급자는 **가장 먼저 소진될 창**을 대표값으로 씨습니다. 표시 방향과 무관하게 같은 창이 선택됩니다.
+  - AG와 Codex는 **가장 많이 사용한 창**, Claude Code는 **5시간 창**을 우선 표시합니다.
   - 배경색은 방향과 무관하게 사용량 기준입니다. 60% 이상 주황색, 99.9% 이상 빨간색이 해당 항목에만 적용됩니다.
 - **`jagInsights.codexSessionPath`**: Codex 세션 JSONL 디렉터리. 비워두면 `$CODEX_HOME/sessions` 또는 `~/.codex/sessions`를 자동 탐지합니다.
 - **`jagInsights.codexUseAppServer`**: 공식 Codex app-server의 `account/rateLimits/read`를 선택적으로 사용합니다 (기본값: `false`). 실패하면 로컬 세션으로 돌아갑니다.
@@ -131,9 +131,9 @@ You can customize the settings by searching for `jagInsights` in the IDE `Settin
   - Use `|` to separate the provider sections so each section can receive its own status color.
   - `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   - `{cx}`: Local Codex CLI (percentage)
-  - `{cc}`: Local Claude Code CLI (displays quota percentage, falls back to a 7-day token count such as `1.5M(7d)`, or shows `0(7d)` when discovery succeeds without recent activity)
+  - `{cc}`: Local Claude Code CLI five-hour usage, with another valid window as fallback. A stale cache gets a history marker; without a valid quota, this shows a 7-day token count.
   - `{ag}`, `{agcx}`, `{agcc}`, `{agcl}` and `{cl}` are **remaining**; `{cx}` and `{cc}` are **usage**.
-  - A provider with several windows is represented by the window that will exhaust first. The same window is picked in either direction.
+  - AG and Codex use the most consumed window; Claude Code prefers its five-hour window.
   - Background colors are driven by usage regardless of direction: a warning at 60% used and an error at 99.9% used, applied only to the affected item.
 - **`jagInsights.codexSessionPath`**: Optional Codex session directory. When empty, `$CODEX_HOME/sessions` or `~/.codex/sessions` is detected automatically.
 - **`jagInsights.codexUseAppServer`**: Optionally query the documented Codex app-server `account/rateLimits/read` method. (Default: `false`; local sessions remain the fallback.)

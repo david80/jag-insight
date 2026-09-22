@@ -70,7 +70,7 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   * The `AG(...)` group is Antigravity IDE's own model quota; the segments after it are the standalone CLIs.
   * `{ag}`, `{agcx}`, `{agcc}`, `{agcl}` and `{cl}` are remaining quota, as the Antigravity UI shows it. `{cx}` and `{cc}` are usage, as `/usage` and the Codex output show it.
-  * A provider with several windows is represented by the window that will exhaust first, in either direction.
+  * AG and Codex use the most consumed window; Claude Code prefers its five-hour window.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: Local Codex CLI (percentage)
   * `{cc}`: Local Claude Code CLI quota percentage. If quota data is unavailable, shows cumulative 7-day token usage instead (for example, `1.5M(7d)` or `0(7d)` when discovery succeeded without recent activity)
@@ -152,7 +152,7 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   * 괄호 안의 `AG(...)`는 Antigravity IDE가 제공하는 모델 쿼터이고, 그 뒤는 독립 실행되는 CLI의 자체 쿼터입니다.
   * `{ag}`·`{agcx}`·`{agcc}`·`{agcl}`·`{cl}`은 Antigravity UI와 같은 잔여량, `{cx}`·`{cc}`는 `/usage` 및 Codex 출력과 같은 사용량입니다.
-  * 창이 여러 개인 공급자는 가장 먼저 소진될 창을 대표값으로 쓵니다. 방향과 무관하게 같은 창이 선택됩니다.
+  * AG와 Codex는 가장 많이 사용한 창을, Claude Code는 5시간 창을 우선 표시합니다.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: 로컬 Codex CLI (퍼센트 단위)
   * `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 대신 표시하며, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)

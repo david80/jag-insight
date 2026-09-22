@@ -101,7 +101,8 @@ class StatusBarManager {
     const percentages = {
       antigravity: agMaximums.length > 0 ? Math.max(...agMaximums) : null,
       codex: summary.codex,
-      claudeCode: summary.claudeCode
+      claudeCode: claudeCodeQuota && claudeCodeQuota.health && claudeCodeQuota.health.status === 'stale'
+        ? null : summary.claudeCode
     };
 
     for (const [provider, item] of Object.entries(this.items)) {

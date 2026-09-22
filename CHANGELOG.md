@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.6
+
+- Show Claude Code's five-hour usage in the status bar, falling back to another valid window when needed.
+- Keep a valid cached Claude Code percentage visible with a history marker when the cache is stale, instead of replacing it with the seven-day token count.
+
 ## 1.3.5
 
 - Fixed Claude Code's local usage cache interpreting 1% as 100% for the five-hour limit.

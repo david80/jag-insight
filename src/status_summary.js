@@ -65,17 +65,33 @@ function maximumUsed(models) {
   return maximum;
 }
 
+function claudeCodeStatusUsed(models) {
+  const valid = (models || []).filter(model =>
+    !model.isNA && !model.isOutdated
+    && (!model.resetsAt || Date.parse(model.resetsAt) > Date.now())
+  );
+  const fiveHour = valid.find(model => model.label === '5-Hour Limit' && usedPercentageOf(model) !== null);
+  return fiveHour ? usedPercentageOf(fiveHour) : maximumUsed(valid);
+}
+
 function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
   const { gemini, codex, claude, others } = categorizeModels(models);
   const currentUsed = quota => quota && quota.health && quota.health.status !== 'fresh'
     ? null : maximumUsed(quota && quota.models);
+  // Claude Code's local cache can remain unchanged between CLI requests. Its
+  // percentage still appears in the details panel, with the provider marked
+  // stale, so keep that same value in the status bar while its window is valid.
+  // StatusBarManager adds the history icon for stale data.
+  const claudeCodeUsed = claudeCodeQuota && claudeCodeQuota.health
+    && !['fresh', 'stale'].includes(claudeCodeQuota.health.status)
+    ? null : claudeCodeStatusUsed(claudeCodeQuota && claudeCodeQuota.models);
 
   return {
     antigravity: maximumUsed([...gemini, ...others]),
     antigravityCodex: maximumUsed(codex),
     antigravityClaude: maximumUsed(claude),
     codex: currentUsed(codexQuota),
-    claudeCode: currentUsed(claudeCodeQuota),
+    claudeCode: claudeCodeUsed,
     claudeCodeActivity: claudeCodeQuota && claudeCodeQuota.activity,
     geminiActivity: geminiActivity || null
   };
