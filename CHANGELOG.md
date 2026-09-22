@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.8
+
+- Read model-specific weekly usage from Claude Code's current local cache format, so the status bar includes values such as `Fable 43%` shown by `/usage`.
+
 ## 1.3.7
 
 - Show Claude Code's 5-hour, weekly, and model-specific weekly usage together in the status bar, matching the `/usage` panel.
