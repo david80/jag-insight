@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.7
 
 - Show Claude Code's 5-hour, weekly, and model-specific weekly usage together in the status bar, matching the `/usage` panel.
 - Capture model-specific weekly limits from Claude Code's status line and color the status item using the highest usage.
