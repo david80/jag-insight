@@ -79,7 +79,7 @@
         "jagInsights.statusBarFormat": {
           "type": "string",
           "default": "$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}",
-          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcc}/{agcl}/{cl} (Antigravity Claude), {cx} (Codex CLI), {cc} (Claude Code CLI). The AG(...) group is Antigravity's own model quota and shows remaining quota, matching the Antigravity UI. The {cx} and {cc} segments after it are the standalone CLIs and show usage, matching Claude Code's /usage panel."
+          "description": "Format template. Placeholders: {ag} (Antigravity Gemini), {agcx} (Antigravity Codex), {agcc}/{agcl}/{cl} (Antigravity Claude), {cx} (Codex CLI), {cc} (Claude Code CLI). AG shows remaining quota. Codex and Claude Code show usage; {cc} lists available 5-hour, weekly, and model-specific weekly limits."
         },
         "jagInsights.claudeCodeUsagePath": {
           "type": "string",

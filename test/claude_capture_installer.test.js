@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { spawnSync } = require('node:child_process');
 
 const { buildCaptureCommand, installClaudeCapture } = require('../src/claude_capture_installer');
 
@@ -44,4 +45,22 @@ test('does not overwrite an unrelated Claude statusLine command', async t => {
 
   assert.equal(result.conflict, true);
   assert.equal(fs.existsSync(path.join(claudeDirectory, 'jag-insights-statusline.js')), false);
+});
+
+test('captures model-scoped Claude weekly limits', t => {
+  const claudeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'jag-claude-capture-'));
+  t.after(() => fs.rmSync(claudeDirectory, { recursive: true, force: true }));
+  const result = spawnSync(process.execPath, [path.join(extensionPath, 'resources', 'claude_statusline_capture.js')], {
+    input: JSON.stringify({ rate_limits: {
+      five_hour: { used_percentage: 10 },
+      seven_day: { used_percentage: 40 },
+      seven_day_fable: { used_percentage: 41 }
+    } }),
+    encoding: 'utf8',
+    env: { ...process.env, CLAUDE_CONFIG_DIR: claudeDirectory }
+  });
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /fable 41%/);
+  const captured = JSON.parse(fs.readFileSync(path.join(claudeDirectory, 'jag-insights-usage.json'), 'utf8'));
+  assert.equal(captured.rate_limits.seven_day_fable.used_percentage, 41);
 });

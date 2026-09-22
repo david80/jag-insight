@@ -13,7 +13,8 @@ process.stdin.on('end', async () => {
     const rateLimits = data.rate_limits;
     const safeLimits = {};
 
-    for (const name of ['five_hour', 'seven_day']) {
+    for (const name of Object.keys(rateLimits || {})) {
+      if (name !== 'five_hour' && name !== 'seven_day' && !name.startsWith('seven_day_')) continue;
       const limit = rateLimits && rateLimits[name];
       if (!limit || !Number.isFinite(Number(limit.used_percentage))) continue;
       safeLimits[name] = {
@@ -41,6 +42,10 @@ process.stdin.on('end', async () => {
     const labels = [];
     if (safeLimits.five_hour) labels.push(`5h ${safeLimits.five_hour.used_percentage.toFixed(0)}%`);
     if (safeLimits.seven_day) labels.push(`7d ${safeLimits.seven_day.used_percentage.toFixed(0)}%`);
+    for (const [name, limit] of Object.entries(safeLimits)) {
+      if (!name.startsWith('seven_day_')) continue;
+      labels.push(`${name.slice('seven_day_'.length).replace(/_/g, ' ')} ${limit.used_percentage.toFixed(0)}%`);
+    }
     process.stdout.write(labels.length ? `Claude Code | ${labels.join(' | ')}` : 'Claude Code');
   } catch {
     process.stdout.write('Claude Code');

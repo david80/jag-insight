@@ -70,7 +70,7 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.statusBarFormat`**: Status bar template (default: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   * The `AG(...)` group is Antigravity IDE's own model quota; the segments after it are the standalone CLIs.
   * `{ag}`, `{agcx}`, `{agcc}`, `{agcl}` and `{cl}` are remaining quota, as the Antigravity UI shows it. `{cx}` and `{cc}` are usage, as `/usage` and the Codex output show it.
-  * AG and Codex use the most consumed window; Claude Code prefers its five-hour window.
+  * AG and Codex use the most consumed window. Claude Code lists available five-hour, weekly, and model-specific weekly windows; its warning color follows the highest usage.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: Local Codex CLI (percentage)
   * `{cc}`: Local Claude Code CLI quota percentage. If quota data is unavailable, shows cumulative 7-day token usage instead (for example, `1.5M(7d)` or `0(7d)` when discovery succeeded without recent activity)
@@ -82,7 +82,7 @@ Open the IDE settings (`Cmd+,` or `Ctrl+,`) and search for **`jagInsights`** to 
 * **`jagInsights.geminiSessionPath`**: Optional Gemini session root; empty detects current project-scoped and legacy layouts.
 * **`jagInsights.geminiTelemetryPath`**: Optional local Gemini OpenTelemetry log; configure `logPrompts: false`.
 
-To enable Claude Code usage tracking, run **`JAG Insights: Install Claude Code Usage Capture`** from the Command Palette, then send one message in Claude Code.
+To enable Claude Code usage tracking or update an existing capture script, run **`JAG Insights: Install Claude Code Usage Capture`** from the Command Palette, then send one message in Claude Code.
 
 ---
 ---
@@ -152,7 +152,7 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.statusBarFormat`**: 상태 표시줄 템플릿 (기본값: `$(hubot) AG(Gemini {ag}, Codex {agcx}, Claude {agcc}) | Codex:{cx} | Claude Code:{cc}`)
   * 괄호 안의 `AG(...)`는 Antigravity IDE가 제공하는 모델 쿼터이고, 그 뒤는 독립 실행되는 CLI의 자체 쿼터입니다.
   * `{ag}`·`{agcx}`·`{agcc}`·`{agcl}`·`{cl}`은 Antigravity UI와 같은 잔여량, `{cx}`·`{cc}`는 `/usage` 및 Codex 출력과 같은 사용량입니다.
-  * AG와 Codex는 가장 많이 사용한 창을, Claude Code는 5시간 창을 우선 표시합니다.
+  * AG와 Codex는 가장 많이 사용한 창을 표시합니다. Claude Code는 확인 가능한 5시간·주간·모델별 주간 사용량을 함께 표시하며, 경고 색상은 가장 높은 사용량을 따릅니다.
   * `{ag}`: Antigravity Gemini, `{agcx}`: Antigravity Codex, `{agcc}`/`{agcl}`/`{cl}`: Antigravity Claude
   * `{cx}`: 로컬 Codex CLI (퍼센트 단위)
   * `{cc}`: 로컬 Claude Code CLI (쿼터 정보가 없으면 지난 7일간 누적 토큰 사용량을 대신 표시하며, 정상 탐지됐지만 최근 사용이 없으면 `0(7d)`로 표시)
@@ -164,4 +164,4 @@ IDE의 설정창(단축키: `Cmd+,` 또는 `Ctrl+,`)을 켠 뒤 검색창에 **`
 * **`jagInsights.geminiSessionPath`**: Gemini 세션 루트 (비우면 최신 프로젝트별 구조와 레거시 구조 자동 탐지)
 * **`jagInsights.geminiTelemetryPath`**: 로컬 Gemini OpenTelemetry 로그 (선택 사항, `logPrompts: false` 권장)
 
-Claude Code 사용량을 활성화하려면 명령 팔레트에서 **`JAG Insights: Install Claude Code Usage Capture`**를 실행한 뒤 Claude Code에 메시지를 하나 보냅니다.
+Claude Code 사용량을 활성화하거나 기존 캡처 스크립트를 갱신하려면 명령 팔레트에서 **`JAG Insights: Install Claude Code Usage Capture`**를 실행한 뒤 Claude Code에 메시지를 하나 보냅니다.

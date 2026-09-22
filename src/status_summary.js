@@ -65,13 +65,19 @@ function maximumUsed(models) {
   return maximum;
 }
 
-function claudeCodeStatusUsed(models) {
-  const valid = (models || []).filter(model =>
+function validClaudeCodeWindows(models) {
+  return (models || []).filter(model =>
     !model.isNA && !model.isOutdated
     && (!model.resetsAt || Date.parse(model.resetsAt) > Date.now())
+    && usedPercentageOf(model) !== null
   );
-  const fiveHour = valid.find(model => model.label === '5-Hour Limit' && usedPercentageOf(model) !== null);
-  return fiveHour ? usedPercentageOf(fiveHour) : maximumUsed(valid);
+}
+
+function claudeCodeWindowLabel(label) {
+  if (label === '5-Hour Limit') return '5h';
+  if (label === 'Weekly Limit' || label === '7-Day Limit') return '7d';
+  const scoped = /^Weekly (.+) Limit$/.exec(label || '');
+  return scoped ? scoped[1] : label || '';
 }
 
 function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
@@ -82,9 +88,10 @@ function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
   // percentage still appears in the details panel, with the provider marked
   // stale, so keep that same value in the status bar while its window is valid.
   // StatusBarManager adds the history icon for stale data.
-  const claudeCodeUsed = claudeCodeQuota && claudeCodeQuota.health
+  const claudeCodeWindows = claudeCodeQuota && claudeCodeQuota.health
     && !['fresh', 'stale'].includes(claudeCodeQuota.health.status)
-    ? null : claudeCodeStatusUsed(claudeCodeQuota && claudeCodeQuota.models);
+    ? [] : validClaudeCodeWindows(claudeCodeQuota && claudeCodeQuota.models);
+  const claudeCodeUsed = maximumUsed(claudeCodeWindows);
 
   return {
     antigravity: maximumUsed([...gemini, ...others]),
@@ -92,6 +99,10 @@ function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
     antigravityClaude: maximumUsed(claude),
     codex: currentUsed(codexQuota),
     claudeCode: claudeCodeUsed,
+    claudeCodeWindows: claudeCodeWindows.map(model => ({
+      label: claudeCodeWindowLabel(model.label),
+      usedPercentage: usedPercentageOf(model)
+    })),
     claudeCodeActivity: claudeCodeQuota && claudeCodeQuota.activity,
     geminiActivity: geminiActivity || null
   };
@@ -106,7 +117,10 @@ function formatRemaining(usedValue) {
   return usedValue === null ? 'N/A' : `${(100 - usedValue).toFixed(0)}%`;
 }
 
-function formatClaudeCodeValue(claudeCode, activity) {
+function formatClaudeCodeValue(claudeCode, activity, windows) {
+  if (windows && windows.length) {
+    return windows.map(window => `${window.label ? `${window.label} ` : ''}${window.usedPercentage.toFixed(0)}%`).join(' · ');
+  }
   if (claudeCode !== null) {
     return `${claudeCode.toFixed(0)}%`;
   }
@@ -130,7 +144,7 @@ function formatStatusBarText(template, summary) {
     agcc: formatRemaining(summary.antigravityClaude),
     // CLI placeholders: consumption, matching `/usage` and the Codex output.
     cx: formatPercentage(summary.codex),
-    cc: formatClaudeCodeValue(summary.claudeCode, summary.claudeCodeActivity),
+    cc: formatClaudeCodeValue(summary.claudeCode, summary.claudeCodeActivity, summary.claudeCodeWindows),
     // Gemini CLI activity — shows 7d token count if available
     gm: (() => {
       const ga = summary.geminiActivity;

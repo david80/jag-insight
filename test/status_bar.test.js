@@ -110,7 +110,7 @@ test('applies warning and error colors independently to AG, CX, and CC items', (
   // print consumption. The warning colors below are driven by usage either way.
   assert.equal(manager.items.antigravity.text, '$(hubot) AG(Gemini 20%, Codex N/A, Claude N/A)');
   assert.equal(manager.items.codex.text, 'Codex:100%');
-  assert.equal(manager.items.claudeCode.text, 'Claude Code:20%');
+  assert.equal(manager.items.claudeCode.text, 'Claude Code:7d 20%');
   assert.equal(manager.items.antigravity.backgroundColor.id, 'statusBarItem.warningBackground');
   assert.equal(manager.items.codex.backgroundColor.id, 'statusBarItem.errorBackground');
   assert.equal(manager.items.claudeCode.backgroundColor, undefined);
@@ -137,8 +137,28 @@ test('marks a stale Claude Code percentage without applying a live warning color
     null
   );
 
-  assert.equal(manager.items.claudeCode.text, 'Claude Code:1% $(history)');
+  assert.equal(manager.items.claudeCode.text, 'Claude Code:5h 1% · 7d 68% $(history)');
   assert.equal(manager.items.claudeCode.backgroundColor, undefined);
+});
+
+test('uses the highest Claude Code limit for status color', () => {
+  const manager = new StatusBarManager();
+  manager.update(
+    { timestamp: new Date().toISOString(), models: [] },
+    { enabled: true, showQuotaOnStatusBar: true, showUserEmail: false, showPromptCredits: false },
+    {
+      models: [
+        { label: '5-Hour Limit', usedPercentage: 10 },
+        { label: 'Weekly Limit', usedPercentage: 40 },
+        { label: 'Weekly Fable Limit', usedPercentage: 65 }
+      ]
+    },
+    null,
+    null
+  );
+
+  assert.equal(manager.items.claudeCode.text, 'Claude Code:5h 10% · 7d 40% · Fable 65%');
+  assert.equal(manager.items.claudeCode.backgroundColor.id, 'statusBarItem.warningBackground');
 });
 
 test('hides every provider item when the extension is disabled', () => {

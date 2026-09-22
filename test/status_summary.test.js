@@ -25,16 +25,17 @@ test('separates Antigravity provider quotas from external Codex and Claude Code'
   assert.equal(text, '$(hubot) AG(Gemini 48%, Codex 72%, Claude 83%) | Codex:9% | Claude Code:36%');
 });
 
-test('shows the Claude Code five-hour window ahead of weekly usage', () => {
+test('shows Claude Code session, weekly, and model limits together', () => {
   const summary = summarizeQuotas([], null, {
     models: [
-      { label: '5-Hour Limit', usedPercentage: 1, remainingPercentage: 99 },
-      { label: 'Weekly Limit', usedPercentage: 38, remainingPercentage: 62 }
+      { label: '5-Hour Limit', usedPercentage: 10, remainingPercentage: 90 },
+      { label: 'Weekly Limit', usedPercentage: 40, remainingPercentage: 60 },
+      { label: 'Weekly Fable Limit', usedPercentage: 41, remainingPercentage: 59 }
     ]
   });
 
-  assert.equal(summary.claudeCode, 1);
-  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:1%');
+  assert.equal(summary.claudeCode, 41);
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:5h 10% · 7d 40% · Fable 41%');
 });
 
 // The most consumed window is also the one with the least left, so Antigravity
@@ -73,7 +74,7 @@ test('does not display stale provider percentages as current usage', () => {
   const summary = summarizeQuotas([], staleCodex, freshClaude);
 
   assert.equal(formatStatusBarText('Codex:{cx} | Claude Code:{cc}', summary),
-    'Codex:N/A | Claude Code:1%');
+    'Codex:N/A | Claude Code:5h 1%');
 });
 
 test('shows a stale Claude Code cache percentage ahead of transcript tokens', () => {
@@ -86,7 +87,7 @@ test('shows a stale Claude Code cache percentage ahead of transcript tokens', ()
     activity: { available: true, last7Days: { totalTokens: 22700000 } }
   });
 
-  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:1%');
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:5h 1% · 7d 38%');
 });
 
 test('uses another valid Claude Code window when five-hour usage is unavailable', () => {
@@ -97,7 +98,7 @@ test('uses another valid Claude Code window when five-hour usage is unavailable'
     ]
   });
 
-  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:38%');
+  assert.equal(formatStatusBarText('Claude Code:{cc}', summary), 'Claude Code:7d 38%');
 });
 
 test('falls back to transcript tokens after the cached Claude Code window expires', () => {
