@@ -14,6 +14,9 @@ function usedPercentage(limit, utilizationIsPercent = false) {
   if (limit.used_percent !== null && limit.used_percent !== undefined && Number.isFinite(Number(limit.used_percent))) {
     return Number(limit.used_percent);
   }
+  if (limit.percent !== null && limit.percent !== undefined && Number.isFinite(Number(limit.percent))) {
+    return Number(limit.percent);
+  }
   if (limit.utilization !== null && limit.utilization !== undefined && Number.isFinite(Number(limit.utilization))) {
     const utilization = Number(limit.utilization);
     return utilizationIsPercent ? utilization : utilization <= 1 ? utilization * 100 : utilization;
@@ -75,6 +78,25 @@ function parseClaudeUsage(data, sourcePath, now = new Date()) {
       .join(' ');
     const scoped = parseWindow(limit, `Weekly ${scope} Limit`, now, utilizationIsPercent);
     if (scoped) models.push(scoped);
+  }
+
+  // Newer Claude Code caches expose the same rows as /usage in a limits list.
+  // Model-specific rows can exist here even when seven_day_<model> is null.
+  for (const limit of Array.isArray(limits.limits) ? limits.limits : []) {
+    let label;
+    if (limit.kind === 'session') label = '5-Hour Limit';
+    else if (limit.kind === 'weekly_all') label = 'Weekly Limit';
+    else if (limit.kind === 'weekly_scoped') {
+      const modelName = limit.scope && limit.scope.model && limit.scope.model.display_name;
+      if (typeof modelName !== 'string' || !modelName.trim()) continue;
+      label = `Weekly ${modelName.trim()} Limit`;
+    } else continue;
+
+    const parsed = parseWindow(limit, label, now, true);
+    if (!parsed) continue;
+    const existingIndex = models.findIndex(model => model.label === label);
+    if (existingIndex === -1) models.push(parsed);
+    else models[existingIndex] = parsed;
   }
 
   if (models.length === 0) return null;

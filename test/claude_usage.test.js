@@ -54,6 +54,34 @@ test('treats a utilization value of 1 in ~/.claude.json as 1 percent', () => {
   assert.deepEqual(quota.models.map(model => model.usedPercentage), [1, 38]);
 });
 
+test('reads model-specific weekly usage from the current Claude Code cache limits list', () => {
+  const quota = parseClaudeUsage({
+    cachedUsageUtilization: {
+      fetchedAtMs: Date.parse('2026-09-22T02:37:00.000Z'),
+      utilization: {
+        five_hour: { utilization: 14, resets_at: '2026-09-22T05:00:00.000Z' },
+        seven_day: { utilization: 41, resets_at: '2026-09-28T00:00:00.000Z' },
+        seven_day_fable: null,
+        limits: [
+          { kind: 'session', percent: 14, resets_at: '2026-09-22T05:00:00.000Z' },
+          { kind: 'weekly_all', percent: 41, resets_at: '2026-09-28T00:00:00.000Z' },
+          {
+            kind: 'weekly_scoped', percent: 43,
+            resets_at: '2026-09-28T00:00:00.000Z',
+            scope: { model: { display_name: 'Fable' } }
+          }
+        ]
+      }
+    }
+  }, '/tmp/.claude.json', new Date('2026-09-22T02:38:00.000Z'));
+
+  assert.deepEqual(quota.models.map(model => [model.label, model.usedPercentage]), [
+    ['5-Hour Limit', 14],
+    ['Weekly Limit', 41],
+    ['Weekly Fable Limit', 43]
+  ]);
+});
+
 test('parses model-scoped weekly limits and millisecond reset timestamps', () => {
   const reset = Date.parse('2026-08-24T00:00:00.000Z');
   const quota = parseClaudeUsage({
