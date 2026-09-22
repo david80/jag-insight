@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.5
+
+- Fixed Claude Code's local usage cache interpreting 1% as 100% for the five-hour limit.
+- Stopped showing stale Codex and Claude Code percentages as current usage in the status bar.
+
 ## 1.3.4
 
 - Restored remaining quota for the Antigravity segment, so each half of the status bar matches the direction its own tool uses: `AG(...)` counts down like the Antigravity UI, while `Codex:` and `Claude Code:` count up like `/usage`.

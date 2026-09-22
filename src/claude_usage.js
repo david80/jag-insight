@@ -6,7 +6,7 @@ function resolveHomePath(filePath) {
   return resolveUserPath(filePath);
 }
 
-function usedPercentage(limit) {
+function usedPercentage(limit, utilizationIsPercent = false) {
   if (!limit) return null;
   if (limit.used_percentage !== null && limit.used_percentage !== undefined && Number.isFinite(Number(limit.used_percentage))) {
     return Number(limit.used_percentage);
@@ -16,7 +16,7 @@ function usedPercentage(limit) {
   }
   if (limit.utilization !== null && limit.utilization !== undefined && Number.isFinite(Number(limit.utilization))) {
     const utilization = Number(limit.utilization);
-    return utilization <= 1 ? utilization * 100 : utilization;
+    return utilizationIsPercent ? utilization : utilization <= 1 ? utilization * 100 : utilization;
   }
   return null;
 }
@@ -30,8 +30,8 @@ function resetIso(limit) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
-function parseWindow(limit, label, now) {
-  const used = usedPercentage(limit);
+function parseWindow(limit, label, now, utilizationIsPercent = false) {
+  const used = usedPercentage(limit, utilizationIsPercent);
   if (used === null) return null;
   const boundedUsed = Math.max(0, Math.min(100, used));
   const resetsAt = resetIso(limit);
@@ -55,12 +55,15 @@ function parseClaudeUsage(data, sourcePath, now = new Date()) {
     || data.rateLimits
     || (localCache && localCache.utilization)
     || data;
+  // cachedUsageUtilization in ~/.claude.json stores utilization in percent
+  // units (1 means 1%), while some other sources use fractions (1 means 100%).
+  const utilizationIsPercent = Boolean(localCache && limits === localCache.utilization);
   const models = [];
 
-  const fiveHour = parseWindow(limits.five_hour || limits.fiveHour, '5-Hour Limit', now);
+  const fiveHour = parseWindow(limits.five_hour || limits.fiveHour, '5-Hour Limit', now, utilizationIsPercent);
   if (fiveHour) models.push(fiveHour);
 
-  const sevenDay = parseWindow(limits.seven_day || limits.sevenDay, 'Weekly Limit', now);
+  const sevenDay = parseWindow(limits.seven_day || limits.sevenDay, 'Weekly Limit', now, utilizationIsPercent);
   if (sevenDay) models.push(sevenDay);
 
   for (const [name, limit] of Object.entries(limits)) {
@@ -70,7 +73,7 @@ function parseClaudeUsage(data, sourcePath, now = new Date()) {
       .filter(Boolean)
       .map(part => part.toLowerCase() === 'oauth' ? 'OAuth' : `${part[0].toUpperCase()}${part.slice(1)}`)
       .join(' ');
-    const scoped = parseWindow(limit, `Weekly ${scope} Limit`, now);
+    const scoped = parseWindow(limit, `Weekly ${scope} Limit`, now, utilizationIsPercent);
     if (scoped) models.push(scoped);
   }
 

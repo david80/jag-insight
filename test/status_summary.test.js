@@ -61,6 +61,21 @@ test('ignores N/A and outdated windows when summarizing usage', () => {
   assert.equal(summary.claudeCode, 41);
 });
 
+test('does not display stale provider percentages as current usage', () => {
+  const staleCodex = {
+    health: { status: 'stale' },
+    models: [{ label: 'Weekly Limit', usedPercentage: 96 }]
+  };
+  const freshClaude = {
+    health: { status: 'fresh' },
+    models: [{ label: '5-Hour Limit', usedPercentage: 1 }]
+  };
+  const summary = summarizeQuotas([], staleCodex, freshClaude);
+
+  assert.equal(formatStatusBarText('Codex:{cx} | Claude Code:{cc}', summary),
+    'Codex:N/A | Claude Code:1%');
+});
+
 test('keeps the legacy local Claude placeholder working and supports agcc', () => {
   const summary = summarizeQuotas([
     { label: 'Claude Opus', remainingPercentage: 55 }

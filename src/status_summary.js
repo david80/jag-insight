@@ -67,13 +67,15 @@ function maximumUsed(models) {
 
 function summarizeQuotas(models, codexQuota, claudeCodeQuota, geminiActivity) {
   const { gemini, codex, claude, others } = categorizeModels(models);
+  const currentUsed = quota => quota && quota.health && quota.health.status !== 'fresh'
+    ? null : maximumUsed(quota && quota.models);
 
   return {
     antigravity: maximumUsed([...gemini, ...others]),
     antigravityCodex: maximumUsed(codex),
     antigravityClaude: maximumUsed(claude),
-    codex: maximumUsed(codexQuota && codexQuota.models),
-    claudeCode: maximumUsed(claudeCodeQuota && claudeCodeQuota.models),
+    codex: currentUsed(codexQuota),
+    claudeCode: currentUsed(claudeCodeQuota),
     claudeCodeActivity: claudeCodeQuota && claudeCodeQuota.activity,
     geminiActivity: geminiActivity || null
   };

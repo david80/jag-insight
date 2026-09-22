@@ -40,6 +40,20 @@ test('parses Claude Code cached usage from ~/.claude.json', () => {
   assert.deepEqual(quota.models.map(model => model.remainingPercentage), [100, 8]);
 });
 
+test('treats a utilization value of 1 in ~/.claude.json as 1 percent', () => {
+  const quota = parseClaudeUsage({
+    cachedUsageUtilization: {
+      fetchedAtMs: Date.parse('2026-09-22T00:16:06.469Z'),
+      utilization: {
+        five_hour: { utilization: 1, resets_at: '2026-09-22T05:00:00.000Z' },
+        seven_day: { utilization: 38, resets_at: '2026-09-28T00:00:00.000Z' }
+      }
+    }
+  }, '/tmp/.claude.json', new Date('2026-09-22T00:17:00.000Z'));
+
+  assert.deepEqual(quota.models.map(model => model.usedPercentage), [1, 38]);
+});
+
 test('parses model-scoped weekly limits and millisecond reset timestamps', () => {
   const reset = Date.parse('2026-08-24T00:00:00.000Z');
   const quota = parseClaudeUsage({
